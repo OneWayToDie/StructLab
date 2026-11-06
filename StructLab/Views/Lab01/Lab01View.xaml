@@ -1,0 +1,83 @@
+﻿<UserControl x:Class="StructLab.Views.Lab01.Lab01View"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             Background="{StaticResource AppBackgroundBrush}">
+
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                     From="0" To="1" Duration="0:0:0.3"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                     From="20" To="0" Duration="0:0:0.3">
+                        <DoubleAnimation.EasingFunction>
+                            <CubicEase EasingMode="EaseOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </UserControl.Triggers>
+
+    <UserControl.RenderTransform>
+        <TranslateTransform/>
+    </UserControl.RenderTransform>
+
+    <StackPanel Margin="48,40" MaxWidth="900" HorizontalAlignment="Left">
+
+        <!-- Заголовок -->
+        <StackPanel Orientation="Horizontal">
+            <Border Background="{StaticResource PrimaryBrush}"
+                    CornerRadius="8"
+                    Width="56" Height="56">
+                <TextBlock Text="1"
+                           FontSize="28"
+                           FontWeight="Bold"
+                           Foreground="White"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+            </Border>
+            <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
+                <TextBlock Text="Динамические структуры данных"
+                           FontSize="28"
+                           FontWeight="Bold"
+                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                <TextBlock Text="Списки, стеки и очереди · Вариант 7 (Картотека квартир)"
+                           FontSize="14"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           Margin="0,4,0,0"/>
+            </StackPanel>
+        </StackPanel>
+
+        <!-- Карточка с информацией -->
+        <materialDesign:Card Margin="0,32,0,0" Padding="28" UniformCornerRadius="12">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
+                    <materialDesign:PackIcon Kind="HammerWrench"
+                                              Width="24" Height="24"
+                                              Foreground="{StaticResource WarningBrush}"/>
+                    <TextBlock Text="В разработке"
+                               FontSize="16"
+                               FontWeight="SemiBold"
+                               Foreground="{StaticResource WarningBrush}"
+                               Margin="8,0,0,0"/>
+                </StackPanel>
+
+                <TextBlock TextWrapping="Wrap"
+                           FontSize="14"
+                           Foreground="{StaticResource TextSecondaryBrush}">
+                    Здесь будет интерфейс работы с картотекой обмена квартир.
+                    <LineBreak/><LineBreak/>
+                    • Добавление квартиры в начало/конец списка<LineBreak/>
+                    • Ввод заявки на обмен с поиском подходящих вариантов<LineBreak/>
+                    • Удаление квартиры по адресу<LineBreak/>
+                    • Сортировка по адресу<LineBreak/>
+                    • Работа с односвязным и двусвязным списком
+                </TextBlock>
+            </StackPanel>
+        </materialDesign:Card>
+
+    </StackPanel>
+</UserControl>
