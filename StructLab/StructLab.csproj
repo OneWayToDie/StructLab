@@ -66,7 +66,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Converters\NullOrEmptyToVisibilityConverter.cs" />
+    <Compile Include="Models\Lab01\Book.cs" />
     <Compile Include="Models\LabInfo.cs" />
+    <Compile Include="ViewModels\Lab01\Lab01ViewModel.cs" />
+    <Compile Include="ViewModels\LabViewModelBase.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\RelayCommand.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />

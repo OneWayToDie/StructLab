@@ -6,28 +6,19 @@
         Title="StructLab — Лабораторный практикум по C++"
         Height="760" Width="1280"
         WindowStartupLocation="CenterScreen"
-        Background="{StaticResource AppBackgroundBrush}"
+        Background="{DynamicResource AppBackgroundBrush}"
         TextElement.FontFamily="pack://application:,,,/MaterialDesignThemes.Wpf;component/Resources/Roboto/#Roboto"
-        TextElement.Foreground="{StaticResource TextPrimaryBrush}">
+        TextElement.Foreground="{DynamicResource TextPrimaryBrush}">
 
     <Window.DataContext>
         <vm:MainViewModel/>
     </Window.DataContext>
 
-    <!-- ==========================================================
-         DialogHost оборачивает ВСЁ содержимое окна.
-         Это позволяет диалогам затемнять весь экран,
-         а не только правую панель.
-    =========================================================== -->
     <materialDesign:DialogHost IsOpen="{Binding IsSettingsOpen, Mode=TwoWay}"
                                 Identifier="RootDialog">
 
         <materialDesign:DialogHost.DialogContent>
 
-            <!-- ==============================================
-                 ДИАЛОГ НАСТРОЕК
-                 Карточка с шапкой, содержимым и футером
-            =============================================== -->
             <materialDesign:Card UniformCornerRadius="16" Width="520">
                 <StackPanel>
 
@@ -52,7 +43,6 @@
                     <!-- Содержимое -->
                     <StackPanel Margin="24,20,24,8">
 
-                        <!-- Заглушка-подсказка -->
                         <Border Background="#EEF2FF"
                                 CornerRadius="8"
                                 Padding="16,12"
@@ -62,7 +52,7 @@
                                                           Width="20" Height="20"
                                                           Foreground="{StaticResource PrimaryBrush}"
                                                           VerticalAlignment="Center"/>
-                                <TextBlock Text="Раздел в разработке. Скоро здесь появятся настройки темы, языка и данных."
+                                <TextBlock Text="Часть настроек ещё в разработке."
                                            Margin="10,0,0,0"
                                            FontSize="12"
                                            Foreground="{StaticResource PrimaryBrush}"
@@ -72,7 +62,7 @@
                             </StackPanel>
                         </Border>
 
-                        <!-- Пункт: Тема оформления -->
+                        <!-- Тема -->
                         <Grid Margin="0,0,0,16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -80,25 +70,25 @@
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="Тема оформления"
+                                <TextBlock Text="Тёмная тема"
                                            FontSize="14"
                                            FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"/>
-                                <TextBlock Text="Светлая или тёмная"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <TextBlock Text="Светлая или тёмная тема оформления"
                                            FontSize="12"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            Margin="0,2,0,0"/>
                             </StackPanel>
 
                             <ToggleButton Grid.Column="1"
                                           Style="{StaticResource MaterialDesignSwitchToggleButton}"
-                                          IsEnabled="False"
+                                          IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
                                           VerticalAlignment="Center"/>
                         </Grid>
 
                         <Separator Margin="0,8,0,16"/>
 
-                        <!-- Пункт: Язык интерфейса -->
+                        <!-- Язык -->
                         <Grid Margin="0,0,0,16">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -109,10 +99,10 @@
                                 <TextBlock Text="Язык интерфейса"
                                            FontSize="14"
                                            FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                                 <TextBlock Text="Русский"
                                            FontSize="12"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            Margin="0,2,0,0"/>
                             </StackPanel>
 
@@ -125,7 +115,7 @@
 
                         <Separator Margin="0,8,0,16"/>
 
-                        <!-- Пункт: О приложении -->
+                        <!-- О приложении -->
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -136,17 +126,17 @@
                                 <TextBlock Text="О приложении"
                                            FontSize="14"
                                            FontWeight="SemiBold"
-                                           Foreground="{StaticResource TextPrimaryBrush}"/>
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
                                 <TextBlock Text="StructLab v0.1 · Лабораторный практикум"
                                            FontSize="12"
-                                           Foreground="{StaticResource TextSecondaryBrush}"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
                                            Margin="0,2,0,0"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
 
                     <!-- Футер -->
-                    <Border Background="{StaticResource AppBackgroundBrush}"
+                    <Border Background="{DynamicResource AppBackgroundBrush}"
                             CornerRadius="0,0,16,16"
                             Padding="24,16">
                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
@@ -162,19 +152,14 @@
 
         </materialDesign:DialogHost.DialogContent>
 
-        <!-- ==========================================================
-             ОСНОВНОЕ СОДЕРЖИМОЕ ОКНА
-             (всё, что было раньше, обёрнуто в этот Grid)
-        =========================================================== -->
+        <!-- Основное содержимое -->
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="300"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- ==========================================
-                 ЛЕВАЯ ПАНЕЛЬ (SIDEBAR)
-            =========================================== -->
+            <!-- SIDEBAR -->
             <Border x:Name="Sidebar"
                     Grid.Column="0"
                     Background="{StaticResource SidebarBrush}">
@@ -250,7 +235,7 @@
                             <DataTemplate>
                                 <StackPanel>
                                     <TextBlock FontSize="11"
-                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               Foreground="#94A3B8"
                                                Text="{Binding Number, StringFormat='ЛАБОРАТОРНАЯ {0}'}"/>
                                     <TextBlock Text="{Binding Title}"
                                                FontSize="14"
@@ -259,7 +244,7 @@
                                                Margin="0,2,0,0"/>
                                     <TextBlock Text="{Binding Description}"
                                                FontSize="11"
-                                               Foreground="{StaticResource TextSecondaryBrush}"
+                                               Foreground="#94A3B8"
                                                Margin="0,2,0,0"/>
                                 </StackPanel>
                             </DataTemplate>
@@ -268,26 +253,17 @@
                 </DockPanel>
             </Border>
 
-            <!-- ==========================================
-                 ПРАВАЯ ПАНЕЛЬ
-                 Разделена на шапку с шестерёнкой и контент
-            =========================================== -->
+            <!-- ПРАВАЯ ПАНЕЛЬ -->
             <Grid Grid.Column="1">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- ===== ШАПКА С КНОПКОЙ НАСТРОЕК ===== -->
-                <Border Grid.Row="0"
-                        Padding="16,12,20,12"
-                        Background="Transparent">
+                <!-- Шапка -->
+                <Border Grid.Row="0" Padding="16,12,20,12" Background="Transparent">
                     <Grid>
-                        <!-- Слева в шапке можно позже добавить хлебные крошки -->
-                        <TextBlock Text=""
-                                   VerticalAlignment="Center"/>
-
-                        <!-- Справа — иконка-шестерёнка -->
+                        <TextBlock Text="" VerticalAlignment="Center"/>
                         <Button HorizontalAlignment="Right"
                                 Command="{Binding OpenSettingsCommand}"
                                 Style="{StaticResource MaterialDesignIconButton}"
@@ -295,27 +271,22 @@
                                 Width="40" Height="40">
                             <materialDesign:PackIcon Kind="Cog"
                                                       Width="22" Height="22"
-                                                      Foreground="{StaticResource TextSecondaryBrush}"/>
+                                                      Foreground="{DynamicResource TextSecondaryBrush}"/>
                         </Button>
                     </Grid>
                 </Border>
 
-                <!-- ===== КОНТЕНТ ЛАБЫ ===== -->
+                <!-- Контент -->
                 <ContentControl Grid.Row="1"
-                                Content="{Binding CurrentView}"
-                                Margin="0,0,0,0">
+                                Content="{Binding CurrentView}">
                     <ContentControl.RenderTransform>
                         <TranslateTransform/>
                     </ContentControl.RenderTransform>
                 </ContentControl>
             </Grid>
         </Grid>
-
     </materialDesign:DialogHost>
 
-    <!-- ==========================================
-         АНИМАЦИЯ ПРИ ЗАПУСКЕ
-    =========================================== -->
     <Window.Triggers>
         <EventTrigger RoutedEvent="Loaded">
             <BeginStoryboard>

@@ -2,7 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-             Background="{StaticResource AppBackgroundBrush}">
+             Background="{DynamicResource AppBackgroundBrush}">
 
     <UserControl.Triggers>
         <EventTrigger RoutedEvent="Loaded">
@@ -18,17 +18,15 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="48,40" MaxWidth="900" HorizontalAlignment="Center">
 
-            <!-- Приветствие -->
             <TextBlock Text="Добро пожаловать в StructLab"
                        FontSize="36"
                        FontWeight="Bold"
-                       Foreground="{StaticResource TextPrimaryBrush}"/>
+                       Foreground="{DynamicResource TextPrimaryBrush}"/>
             <TextBlock Text="Интерактивная библиотека структур данных на C++"
                        FontSize="16"
-                       Foreground="{StaticResource TextSecondaryBrush}"
+                       Foreground="{DynamicResource TextSecondaryBrush}"
                        Margin="0,8,0,40"/>
 
-            <!-- Сетка с карточками лаб -->
             <UniformGrid Columns="2">
                 <materialDesign:Card Margin="8" Padding="24" UniformCornerRadius="12">
                     <StackPanel>
@@ -37,10 +35,11 @@
                                                   Foreground="{StaticResource PrimaryBrush}"/>
                         <TextBlock Text="Структуры данных"
                                    FontSize="18" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    Margin="0,16,0,8"/>
-                        <TextBlock Text="Списки, стеки, очереди, деревья. Всё, что нужно знать о работе с памятью."
+                        <TextBlock Text="Списки, стеки, очереди, деревья. Всё о работе с памятью."
                                    TextWrapping="Wrap"
-                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                     </StackPanel>
                 </materialDesign:Card>
 
@@ -51,10 +50,11 @@
                                                   Foreground="{StaticResource PrimaryBrush}"/>
                         <TextBlock Text="Современный C++"
                                    FontSize="18" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    Margin="0,16,0,8"/>
-                        <TextBlock Text="От указателей до шаблонов. От ручного управления памятью до ООП."
+                        <TextBlock Text="От указателей до шаблонов. От ручного управления до ООП."
                                    TextWrapping="Wrap"
-                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                     </StackPanel>
                 </materialDesign:Card>
 
@@ -65,10 +65,11 @@
                                                   Foreground="{StaticResource PrimaryBrush}"/>
                         <TextBlock Text="Практика"
                                    FontSize="18" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    Margin="0,16,0,8"/>
-                        <TextBlock Text="Восемь лабораторных работ, каждая — реальная задача из жизни."
+                        <TextBlock Text="Восемь лабораторных работ, каждая — реальная задача."
                                    TextWrapping="Wrap"
-                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                     </StackPanel>
                 </materialDesign:Card>
 
@@ -79,15 +80,15 @@
                                                   Foreground="{StaticResource PrimaryBrush}"/>
                         <TextBlock Text="Единый хаб"
                                    FontSize="18" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource TextPrimaryBrush}"
                                    Margin="0,16,0,8"/>
-                        <TextBlock Text="Все лабы в одном приложении, с навигацией и единым интерфейсом."
+                        <TextBlock Text="Все лабы в одном приложении, единый интерфейс."
                                    TextWrapping="Wrap"
-                                   Foreground="{StaticResource TextSecondaryBrush}"/>
+                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
                     </StackPanel>
                 </materialDesign:Card>
             </UniformGrid>
 
-            <!-- Подсказка -->
             <Border Margin="8,40,8,0"
                     Padding="20"
                     Background="#EEF2FF"

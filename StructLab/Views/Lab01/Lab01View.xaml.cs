@@ -4,6 +4,9 @@ namespace StructLab.Views.Lab01
 {
 	public partial class Lab01View : UserControl
 	{
-		public Lab01View() => InitializeComponent();
+		public Lab01View()
+		{
+			InitializeComponent();
+		}
 	}
 }
