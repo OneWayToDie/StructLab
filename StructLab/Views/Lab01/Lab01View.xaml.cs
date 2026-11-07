@@ -1,4 +1,5 @@
-﻿using System.Windows.Controls;
+﻿using System.Windows;
+using System.Windows.Controls;
 
 namespace StructLab.Views.Lab01
 {
@@ -7,6 +8,10 @@ namespace StructLab.Views.Lab01
 		public Lab01View()
 		{
 			InitializeComponent();
+
+			Loaded += OnViewLoaded;
+			Unloaded += OnViewUnloaded;
+			DataContextChanged += OnViewDataContextChanged;
 		}
 	}
 }

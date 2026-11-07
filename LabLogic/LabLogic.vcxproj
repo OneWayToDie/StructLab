@@ -137,9 +137,13 @@
     <ClCompile Include="BookListExports.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="DoublyBookList.cpp" />
+    <ClCompile Include="LoanList.cpp" />
+    <ClCompile Include="ReaderList.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BookList.h" />
+    <ClInclude Include="LoanList.h" />
+    <ClInclude Include="ReaderList.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

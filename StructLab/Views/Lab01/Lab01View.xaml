@@ -3,11 +3,27 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
              xmlns:vm="clr-namespace:StructLab.ViewModels.Lab01"
-             Background="{DynamicResource AppBackgroundBrush}">
+             xmlns:controls="clr-namespace:StructLab.Controls"
+             xmlns:behaviors="clr-namespace:StructLab.Behaviors"
+             Background="{DynamicResource AppBackgroundBrush}"
+             behaviors:ButtonSquash.IsEnabled="True">
 
     <UserControl.DataContext>
         <vm:Lab01ViewModel/>
     </UserControl.DataContext>
+
+    <!-- ============================================================ -->
+    <!-- ПОДКЛЮЧЕНИЕ СЛОВАРЕЙ АНИМАЦИЙ -->
+    <!-- ============================================================ -->
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/Animations/Lab01/DataGridAnimations.xaml"/>
+                <ResourceDictionary Source="/Animations/Lab01/FeedbackAnimations.xaml"/>
+                <ResourceDictionary Source="/Animations/Lab01/MicroAnimations.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
 
     <UserControl.RenderTransform>
         <TranslateTransform/>
@@ -27,249 +43,752 @@
         </EventTrigger>
     </UserControl.Triggers>
 
-    <materialDesign:DialogHost Identifier="Lab01Dialog" IsOpen="{Binding IsAnyDialogOpen, Mode=TwoWay}">
-        <materialDesign:DialogHost.DialogContent>
-            <Grid>
-                <!-- 1. ДИАЛОГ ДОБАВЛЕНИЯ -->
-                <materialDesign:Card UniformCornerRadius="16" Width="520"
-                                     Visibility="{Binding IsAddDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <StackPanel>
-                        <Border Background="{StaticResource PrimaryBrush}" CornerRadius="16,16,0,0" Padding="24,20">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="BookPlus" Width="28" Height="28" Foreground="White" VerticalAlignment="Center"/>
-                                <TextBlock Text="Добавить книгу" Foreground="White" FontSize="20" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Border>
-                        <StackPanel Margin="24,20,24,8">
-                            <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                                     materialDesign:HintAssist.Hint="После/Перед книги (Название)"
-                                     Text="{Binding TargetTitleForInsert, UpdateSourceTrigger=PropertyChanged}"
-                                     Margin="0,0,0,16"/>
-                            <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                                     materialDesign:HintAssist.Hint="Автор"
-                                     Text="{Binding NewBook.Author, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16"/>
-                            <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                                     materialDesign:HintAssist.Hint="Название"
-                                     Text="{Binding NewBook.Title, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16"/>
-                            <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
-                                     materialDesign:HintAssist.Hint="Жанр"
-                                     Text="{Binding NewBook.Genre, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16"/>
-                            <Grid Margin="0,0,0,16">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="16"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBox Grid.Column="0" Style="{StaticResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint="Год" Text="{Binding NewBook.Year, UpdateSourceTrigger=PropertyChanged}"/>
-                                <TextBox Grid.Column="2" Style="{StaticResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint="Страниц" Text="{Binding NewBook.Pages, UpdateSourceTrigger=PropertyChanged}"/>
-                            </Grid>
-                            <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint="Экземпляров" Text="{Binding NewBook.Copies, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8"/>
+    <Grid>
 
-                            <Border Background="#FEE2E2" CornerRadius="6" Padding="12,8" Margin="0,4,0,0"
-                                    Visibility="{Binding NewBookError, Converter={StaticResource NullToVisibilityConverter}}">
+        <materialDesign:DialogHost Identifier="Lab01Dialog" IsOpen="{Binding IsAnyDialogOpen, Mode=TwoWay}">
+            <materialDesign:DialogHost.DialogContent>
+                <Grid behaviors:ButtonSquash.IsEnabled="True">
+
+                    <!-- ===== 1. ДИАЛОГ: ДОБАВЛЕНИЕ КНИГИ ===== -->
+                    <materialDesign:Card UniformCornerRadius="16" Width="520"
+                                         Style="{StaticResource AnimatedDialogCard}"
+                                         Visibility="{Binding IsAddDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <StackPanel>
+                            <Border Background="{StaticResource PrimaryBrush}" CornerRadius="16,16,0,0" Padding="24,20">
                                 <StackPanel Orientation="Horizontal">
-                                    <materialDesign:PackIcon Kind="AlertCircleOutline" Width="18" Height="18" Foreground="{StaticResource ErrorBrush}" VerticalAlignment="Center"/>
-                                    <TextBlock Text="{Binding NewBookError}" Foreground="{StaticResource ErrorBrush}" Margin="8,0,0,0" FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                    <materialDesign:PackIcon Kind="BookPlus" Width="28" Height="28" Foreground="White" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Добавить книгу" Foreground="White" FontSize="20" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <StackPanel Margin="24,20,24,8">
+                                <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                         materialDesign:HintAssist.Hint="После/Перед книги (Название)"
+                                         Text="{Binding TargetTitleForInsert, UpdateSourceTrigger=PropertyChanged}"
+                                         Margin="0,0,0,16"/>
+                                <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                         materialDesign:HintAssist.Hint="Автор"
+                                         Text="{Binding NewBook.Author, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16"/>
+                                <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                         materialDesign:HintAssist.Hint="Название"
+                                         Text="{Binding NewBook.Title, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16"/>
+                                <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                         materialDesign:HintAssist.Hint="Жанр"
+                                         Text="{Binding NewBook.Genre, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16"/>
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBox Grid.Column="0" Style="{StaticResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint="Год" Text="{Binding NewBook.Year, UpdateSourceTrigger=PropertyChanged}"/>
+                                    <TextBox Grid.Column="2" Style="{StaticResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint="Страниц" Text="{Binding NewBook.Pages, UpdateSourceTrigger=PropertyChanged}"/>
+                                </Grid>
+                                <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint="Экземпляров" Text="{Binding NewBook.Copies, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8"/>
+
+                                <Border Background="#FEE2E2" CornerRadius="6" Padding="12,8" Margin="0,4,0,0"
+                                        Style="{StaticResource ShakeOnErrorBorder}"
+                                        Visibility="{Binding NewBookError, Converter={StaticResource NullToVisibilityConverter}}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <materialDesign:PackIcon Kind="AlertCircleOutline" Width="18" Height="18" Foreground="{StaticResource ErrorBrush}" VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding NewBookError}" Foreground="{StaticResource ErrorBrush}" Margin="8,0,0,0" FontSize="12" VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                            <Border Background="{DynamicResource AppBackgroundBrush}" CornerRadius="0,0,16,16" Padding="24,16">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Content="Отмена" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding CancelAddCommand}" Margin="0,0,8,0"/>
+                                    <Button Content="Добавить" Style="{StaticResource MaterialDesignRaisedButton}" Command="{Binding ConfirmAddCommand}" IsDefault="True"/>
                                 </StackPanel>
                             </Border>
                         </StackPanel>
-                        <Border Background="{DynamicResource AppBackgroundBrush}" CornerRadius="0,0,16,16" Padding="24,16">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                <Button Content="Отмена" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding CancelAddCommand}" Margin="0,0,8,0"/>
-                                <Button Content="Добавить" Style="{StaticResource MaterialDesignRaisedButton}" Command="{Binding ConfirmAddCommand}" IsDefault="True"/>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-                </materialDesign:Card>
+                    </materialDesign:Card>
 
-                <!-- 2. ДИАЛОГ ЗАЯВКИ -->
-                <materialDesign:Card UniformCornerRadius="16" Width="480"
-                                     Visibility="{Binding IsRequestDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <StackPanel>
-                        <Border Background="{StaticResource PrimaryBrush}" CornerRadius="16,16,0,0" Padding="24,20">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="FileFindOutline" Width="28" Height="28" Foreground="White" VerticalAlignment="Center"/>
-                                <TextBlock Text="Заявка на поиск" Foreground="White" FontSize="20" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                    <!-- ===== 2. ДИАЛОГ: ЗАЯВКА ===== -->
+                    <materialDesign:Card x:Name="RequestCard" UniformCornerRadius="16" Width="480"
+                                         Style="{StaticResource AnimatedDialogCard}"
+                                         Visibility="{Binding IsRequestDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <StackPanel>
+                            <Border Background="{StaticResource PrimaryBrush}" CornerRadius="16,16,0,0" Padding="24,20">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="FileFindOutline" Width="28" Height="28" Foreground="White" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Заявка на поиск" Foreground="White" FontSize="20" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <StackPanel Margin="24,20,24,8">
+                                <TextBlock Text="Введите параметры. Допуск по страницам: ±10%." TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" Margin="0,0,0,16"/>
+                                <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint="Жанр" Text="{Binding RequestGenre, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16"/>
+                                <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint="Страниц" Text="{Binding RequestPages, UpdateSourceTrigger=PropertyChanged}"/>
                             </StackPanel>
-                        </Border>
-                        <StackPanel Margin="24,20,24,8">
-                            <TextBlock Text="Введите параметры. Допуск по страницам: ±10%." TextWrapping="Wrap" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12" Margin="0,0,0,16"/>
-                            <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint="Жанр" Text="{Binding RequestGenre, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16"/>
-                            <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint="Страниц" Text="{Binding RequestPages, UpdateSourceTrigger=PropertyChanged}"/>
+                            <Border Background="{DynamicResource AppBackgroundBrush}" CornerRadius="0,0,16,16" Padding="24,16">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Content="Отмена" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding CancelRequestCommand}" Margin="0,0,8,0"/>
+                                    <Button Content="Найти" Style="{StaticResource MaterialDesignRaisedButton}" Command="{Binding ConfirmRequestCommand}" IsDefault="True"/>
+                                </StackPanel>
+                            </Border>
                         </StackPanel>
-                        <Border Background="{DynamicResource AppBackgroundBrush}" CornerRadius="0,0,16,16" Padding="24,16">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                <Button Content="Отмена" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding CancelRequestCommand}" Margin="0,0,8,0"/>
-                                <Button Content="Найти" Style="{StaticResource MaterialDesignRaisedButton}" Command="{Binding ConfirmRequestCommand}" IsDefault="True"/>
+                    </materialDesign:Card>
+
+                    <!-- ===== 3. ДИАЛОГ: СООБЩЕНИЕ ===== -->
+                    <materialDesign:Card UniformCornerRadius="16" Width="450"
+                                         Style="{StaticResource AnimatedDialogCard}"
+                                         Visibility="{Binding IsMessageDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <StackPanel>
+                            <Border Background="{StaticResource PrimaryBrush}" CornerRadius="16,16,0,0" Padding="24,20">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="{Binding MessageIcon}" Width="28" Height="28" Foreground="White"
+                                                              Style="{StaticResource PulseIconStyle}"
+                                                              VerticalAlignment="Center"/>
+                                    <TextBlock Text="{Binding MessageTitle}" Foreground="White" FontSize="20" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <TextBlock Text="{Binding MessageText}" Margin="24,24,24,24" FontSize="14" TextWrapping="Wrap" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <Border Background="{DynamicResource AppBackgroundBrush}" CornerRadius="0,0,16,16" Padding="24,16">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Content="ОК" Style="{StaticResource MaterialDesignRaisedButton}"
+                                            Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}" IsDefault="True" Width="100"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </materialDesign:Card>
+
+                    <!-- ===== 4. ДИАЛОГ: ДОБАВЛЕНИЕ ЧИТАТЕЛЯ ===== -->
+                    <materialDesign:Card UniformCornerRadius="16" Width="450"
+                                         Style="{StaticResource AnimatedDialogCard}"
+                                         Visibility="{Binding IsAddReaderDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <StackPanel>
+                            <Border Background="{StaticResource PrimaryBrush}" CornerRadius="16,16,0,0" Padding="24,20">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="AccountPlus" Width="28" Height="28" Foreground="White" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Новый читатель" Foreground="White" FontSize="20" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <StackPanel Margin="24,20,24,8">
+                                <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint="ФИО" Text="{Binding NewReader.FullName, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16"/>
+                                <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint="Номер читательского билета" Text="{Binding NewReader.TicketNumber, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16"/>
+                                <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint="Телефон" Text="{Binding NewReader.Phone, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,16"/>
+                                <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint="Адрес" Text="{Binding NewReader.Address, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,0,8"/>
+
+                                <Border Background="#FEE2E2" CornerRadius="6" Padding="12,8" Margin="0,4,0,0"
+                                        Style="{StaticResource ShakeOnErrorBorder}"
+                                        Visibility="{Binding NewReaderError, Converter={StaticResource NullToVisibilityConverter}}">
+                                    <TextBlock Text="{Binding NewReaderError}" Foreground="{StaticResource ErrorBrush}" FontSize="12" TextWrapping="Wrap"/>
+                                </Border>
                             </StackPanel>
-                        </Border>
-                    </StackPanel>
-                </materialDesign:Card>
+                            <Border Background="{DynamicResource AppBackgroundBrush}" CornerRadius="0,0,16,16" Padding="24,16">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Content="Отмена" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding CancelAddReaderCommand}" Margin="0,0,8,0"/>
+                                    <Button Content="Сохранить" Style="{StaticResource MaterialDesignRaisedButton}" Command="{Binding ConfirmAddReaderCommand}" IsDefault="True"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </materialDesign:Card>
 
-                <!-- 3. ДИАЛОГ СООБЩЕНИЯ -->
-                <materialDesign:Card UniformCornerRadius="16" Width="450"
-                                     Visibility="{Binding IsMessageDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
-                    <StackPanel>
-                        <Border Background="{StaticResource PrimaryBrush}" CornerRadius="16,16,0,0" Padding="24,20">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="{Binding MessageIcon}" Width="28" Height="28" Foreground="White" VerticalAlignment="Center"/>
-                                <TextBlock Text="{Binding MessageTitle}" Foreground="White" FontSize="20" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                    <!-- ===== 5. ДИАЛОГ: ВЫДАЧА КНИГИ ===== -->
+                    <materialDesign:Card UniformCornerRadius="16" Width="500"
+                                         Style="{StaticResource AnimatedDialogCard}"
+                                         Visibility="{Binding IsIssueDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <StackPanel>
+                            <Border Background="{StaticResource PrimaryBrush}" CornerRadius="16,16,0,0" Padding="24,20">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="BookArrowRight" Width="28" Height="28" Foreground="White" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Выдать книгу" Foreground="White" FontSize="20" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <StackPanel Margin="24,20,24,8">
+                                <TextBlock Text="Выберите книгу и читателя. Срок возврата — 14 дней."
+                                           Foreground="{DynamicResource TextSecondaryBrush}" FontSize="12"
+                                           Margin="0,0,0,16" TextWrapping="Wrap"/>
+
+                                <TextBlock Text="Книга" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                <ComboBox ItemsSource="{Binding Books}"
+                                          SelectedItem="{Binding IssueSelectedBook, Mode=TwoWay}"
+                                          Margin="0,0,0,16">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding Title}" TextTrimming="CharacterEllipsis" MaxWidth="280"/>
+                                                <TextBlock Text="{Binding Copies, StringFormat=' ({0} экз.)'}"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}" Margin="4,0,0,0"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+
+                                <TextBlock Text="Читатель" FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                <ComboBox ItemsSource="{Binding Readers}"
+                                          SelectedItem="{Binding IssueSelectedReader, Mode=TwoWay}"
+                                          Margin="0,0,0,0">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding FullName}" TextTrimming="CharacterEllipsis" MaxWidth="280"/>
+                                                <TextBlock Text="{Binding TicketNumber, StringFormat=' [{0}]'}"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}" Margin="4,0,0,0"/>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+
+                                <Border Background="#FEE2E2" CornerRadius="6" Padding="12,8" Margin="0,12,0,0"
+                                        Style="{StaticResource ShakeOnErrorBorder}"
+                                        Visibility="{Binding IssueError, Converter={StaticResource NullToVisibilityConverter}}">
+                                    <TextBlock Text="{Binding IssueError}" Foreground="{StaticResource ErrorBrush}" FontSize="12" TextWrapping="Wrap"/>
+                                </Border>
                             </StackPanel>
-                        </Border>
-                        <TextBlock Text="{Binding MessageText}" Margin="24,24,24,24" FontSize="14" TextWrapping="Wrap" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        <Border Background="{DynamicResource AppBackgroundBrush}" CornerRadius="0,0,16,16" Padding="24,16">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                <Button Content="ОК" Style="{StaticResource MaterialDesignRaisedButton}" 
-                                        Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}" IsDefault="True" Width="100"/>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-                </materialDesign:Card>
-            </Grid>
-        </materialDesign:DialogHost.DialogContent>
+                            <Border Background="{DynamicResource AppBackgroundBrush}" CornerRadius="0,0,16,16" Padding="24,16">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Content="Отмена" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding CancelIssueCommand}" Margin="0,0,8,0"/>
+                                    <Button Content="Выдать" Style="{StaticResource MaterialDesignRaisedButton}" Command="{Binding ConfirmIssueCommand}" IsDefault="True"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </materialDesign:Card>
 
-        <!-- ОСНОВНОЙ КОНТЕНТ -->
-        <ScrollViewer VerticalScrollBarVisibility="Auto">
-            <StackPanel Margin="48,40,48,40" MaxWidth="1100">
-                <StackPanel Orientation="Horizontal" Margin="0,0,0,24">
-                    <Border Background="{StaticResource PrimaryBrush}" CornerRadius="8" Width="56" Height="56">
-                        <TextBlock Text="1" FontSize="28" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="Библиотека" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
-                        <TextBlock Text="Учёт книг · Динамический список" FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
-                    </StackPanel>
-                </StackPanel>
+                    <!-- ===== 6. ДИАЛОГ: КАРТОЧКА КНИГИ (flip) ===== -->
+                    <materialDesign:Card x:Name="DetailsFlipRoot" UniformCornerRadius="16" Width="480"
+                                         Style="{StaticResource AnimatedDialogCard}"
+                                         RenderTransformOrigin="0.5,0.5"
+                                         Visibility="{Binding IsBookDetailsDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <materialDesign:Card.RenderTransform>
+                            <ScaleTransform x:Name="DetailsFlipScale" ScaleX="1" ScaleY="1"/>
+                        </materialDesign:Card.RenderTransform>
 
-                <!-- Панель кнопок (без «Всего книг») -->
-                <materialDesign:Card Padding="16" UniformCornerRadius="12" Margin="0,0,0,16">
-                    <WrapPanel>
-                        <Button Style="{StaticResource MaterialDesignRaisedButton}" Command="{Binding OpenAddDialogCommand}" Margin="0,0,8,8">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="Plus" VerticalAlignment="Center"/>
-                                <TextBlock Text="В конец" Margin="6,0,0,0"/>
-                            </StackPanel>
-                        </Button>
-
-                        <Button Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding AddSortedCommand}" Margin="0,0,8,8" ToolTip="Вставить по алфавиту">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="SortAlphabeticalAscending" VerticalAlignment="Center"/>
-                                <TextBlock Text="По алфавиту" Margin="6,0,0,0"/>
-                            </StackPanel>
-                        </Button>
-
-                        <Border Background="{DynamicResource AppBackgroundBrush}" CornerRadius="6" Padding="12,4" Margin="0,0,16,8" VerticalAlignment="Center" BorderBrush="{StaticResource PrimaryBrush}" BorderThickness="1">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <TextBlock Text="{Binding ListTypeLabel}" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource PrimaryBrush}"/>
-                                <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding IsDoubly, Mode=TwoWay}" ToolTip="Переключить тип списка"/>
-                            </StackPanel>
-                        </Border>
-
-                        <Button Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding OpenRequestDialogCommand}" Margin="0,0,8,8">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="Magnify" VerticalAlignment="Center"/>
-                                <TextBlock Text="Заявка" Margin="6,0,0,0"/>
-                            </StackPanel>
-                        </Button>
-
-                        <Button Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding DeleteSelectedCommand}" Margin="0,0,8,8" ToolTip="Удалить выбранную">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="DeleteOutline" VerticalAlignment="Center"/>
-                                <TextBlock Text="Удалить" Margin="6,0,0,0"/>
-                            </StackPanel>
-                        </Button>
-
-                        <Button Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding ClearAllCommand}" Margin="0,0,8,8">
-                            <StackPanel Orientation="Horizontal">
-                                <materialDesign:PackIcon Kind="DeleteSweepOutline" VerticalAlignment="Center"/>
-                                <TextBlock Text="Очистить" Margin="6,0,0,0"/>
-                            </StackPanel>
-                        </Button>
-                    </WrapPanel>
-                </materialDesign:Card>
-
-                <!-- Таблица с шапкой-статистикой и пагинацией -->
-                <materialDesign:Card Padding="0" UniformCornerRadius="12">
-                    <StackPanel>
-
-                        <!-- Шапка: Всего книг + Страница X из Y -->
-                        <!-- Шапка: Всего книг + Страница X из Y -->
-                        <Border Padding="16,10" Background="{DynamicResource AppBackgroundBrush}">
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0" 
-                                    Text="{Binding TotalBooksInfo}"
-                                    VerticalAlignment="Center"
-                                    FontSize="13" FontWeight="SemiBold"
-                                    Foreground="{DynamicResource TextSecondaryBrush}"/>
-                                <TextBlock Grid.Column="1" 
-                                    Text="{Binding PageInfo}"
-                                    VerticalAlignment="Center"
-                                    FontSize="13"
-                                    Foreground="{DynamicResource TextSecondaryBrush}"/>
+                        <Grid>
+                            <!-- Лицевая сторона: «обложка» -->
+                            <Grid x:Name="DetailsFront">
+                                <StackPanel>
+                                    <Border Background="{StaticResource PrimaryBrush}" CornerRadius="16,16,0,0" Padding="24,20">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="BookOpenPageVariant" Width="28" Height="28" Foreground="White" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Карточка книги" Foreground="White" FontSize="20" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <StackPanel Margin="24,28,24,28" HorizontalAlignment="Center">
+                                        <materialDesign:PackIcon Kind="BookOpenPageVariant" Width="72" Height="72"
+                                                                  Foreground="{StaticResource PrimaryBrush}"
+                                                                  HorizontalAlignment="Center"/>
+                                        <TextBlock Text="{Binding DetailsBook.Title}" FontSize="22" FontWeight="Bold"
+                                                   TextAlignment="Center" TextWrapping="Wrap" Margin="0,16,0,0"
+                                                   Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                        <TextBlock Text="{Binding DetailsBook.Author}" FontSize="14"
+                                                   TextAlignment="Center" TextWrapping="Wrap" Margin="0,6,0,0"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                        <TextBlock Text="Открываем карточку…" FontSize="12" Margin="0,22,0,0"
+                                                   TextAlignment="Center"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    </StackPanel>
+                                </StackPanel>
                             </Grid>
+
+                            <!-- Обратная сторона: характеристики -->
+                            <Grid x:Name="DetailsBack" Opacity="0">
+                                <StackPanel>
+                                    <Border Background="{StaticResource PrimaryBrush}" CornerRadius="16,16,0,0" Padding="24,20">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="BookInformationVariant" Width="28" Height="28" Foreground="White" VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding DetailsBook.Title}" Foreground="White" FontSize="18" FontWeight="SemiBold" Margin="12,0,0,0" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <StackPanel Margin="24,20,24,8">
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="130"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Автор" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="13"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding DetailsBook.Author}" FontSize="13" TextWrapping="Wrap" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                        </Grid>
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="130"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Жанр" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="13"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding DetailsBook.Genre}" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                        </Grid>
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="130"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Год издания" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="13"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding DetailsBook.Year}" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                        </Grid>
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="130"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Страниц" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="13"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding DetailsBook.Pages}" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                        </Grid>
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="130"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="В наличии" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="13"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding DetailsBook.Copies, StringFormat='{}{0} экз.'}" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                        </Grid>
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="130"/>
+                                                <ColumnDefinition Width="*"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Text="Код" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="13"/>
+                                            <TextBlock Grid.Column="1" Text="{Binding DetailsBook.Id, StringFormat='#{0}'}" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                        </Grid>
+                                    </StackPanel>
+
+                                    <Border Background="{DynamicResource AppBackgroundBrush}" CornerRadius="0,0,16,16" Padding="24,16">
+                                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                            <Button Content="Закрыть" Style="{StaticResource MaterialDesignRaisedButton}" Width="120"
+                                                    Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}" IsDefault="True"/>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+                        </Grid>
+                    </materialDesign:Card>
+
+                </Grid>
+            </materialDesign:DialogHost.DialogContent>
+
+            <!-- ============================================================ -->
+            <!-- ОСНОВНОЙ КОНТЕНТ -->
+            <!-- ============================================================ -->
+            <Grid Margin="48,32,48,24" MaxWidth="1100">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Шапка -->
+                <Grid Grid.Row="0" Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <Border Background="{StaticResource PrimaryBrush}" CornerRadius="8" Width="56" Height="56">
+                            <TextBlock Text="1" FontSize="28" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
+                        <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Библиотека" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <TextBlock Text="Учёт книг · Читатели · Выдачи" FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
 
-                        <!-- Таблица (только текущая страница) -->
-                        <DataGrid ItemsSource="{Binding PagedBooks}"
-                                  SelectedItem="{Binding SelectedBook, Mode=TwoWay}"
-                                  AutoGenerateColumns="False"
-                                  CanUserAddRows="False"
-                                  CanUserDeleteRows="False"
-                                  IsReadOnly="True"
-                                  HeadersVisibility="Column"
-                                  GridLinesVisibility="Horizontal"
-                                  Background="{DynamicResource SurfaceBrush}"
-                                  BorderThickness="0"
-                                  RowHeight="44"
-                                  ColumnHeaderHeight="44">
-                            <DataGrid.Columns>
-                                <DataGridTextColumn Header="Автор" Binding="{Binding Author}" Width="*"/>
-                                <DataGridTextColumn Header="Название" Binding="{Binding Title}" Width="*"/>
-                                <DataGridTextColumn Header="Жанр" Binding="{Binding Genre}" Width="120"/>
-                                <DataGridTextColumn Header="Год" Binding="{Binding Year}" Width="80"/>
-                                <DataGridTextColumn Header="Стр." Binding="{Binding Pages}" Width="80"/>
-                                <DataGridTextColumn Header="Экз." Binding="{Binding Copies}" Width="80"/>
-                            </DataGrid.Columns>
-                        </DataGrid>
-
-                        <!-- Пагинация -->
-                        <Border Padding="12" Background="{DynamicResource AppBackgroundBrush}">
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <Button Command="{Binding PrevPageCommand}"
-                                        Style="{StaticResource MaterialDesignOutlinedButton}"
-                                        Margin="0,0,12,0"
-                                        ToolTip="Предыдущая страница">
-                                    <StackPanel Orientation="Horizontal">
-                                        <materialDesign:PackIcon Kind="ChevronLeft" VerticalAlignment="Center"/>
-                                        <TextBlock Text="Назад" Margin="4,0,0,0"/>
-                                    </StackPanel>
-                                </Button>
-
-                                <TextBlock Text="{Binding PageInfo}"
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="10" Padding="14,8"
+                                BorderBrush="{StaticResource PrimaryBrush}" BorderThickness="1">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Всего книг в картотеке">
+                                <materialDesign:PackIcon Kind="BookOpenPageVariant" Width="20" Height="20"
+                                                          Foreground="{StaticResource PrimaryBrush}" VerticalAlignment="Center"/>
+                                <controls:AnimatedNumberTextBlock x:Name="TotalBooksCounter"
+                                                                  Value="{Binding Books.Count}"
+                                                                  Text="0"
+                                                                  Margin="8,0,0,0"
+                                                                  FontSize="18" FontWeight="Bold"
+                                                                  VerticalAlignment="Center"
+                                                                  Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <TextBlock Text="книг" Margin="6,0,0,0" FontSize="12"
                                            VerticalAlignment="Center"
-                                           Margin="8,0"
-                                           FontSize="14"
-                                           FontWeight="SemiBold"
-                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
-
-                                <Button Command="{Binding NextPageCommand}"
-                                        Style="{StaticResource MaterialDesignOutlinedButton}"
-                                        Margin="12,0,0,0"
-                                        ToolTip="Следующая страница">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="Вперёд" Margin="0,0,4,0"/>
-                                        <materialDesign:PackIcon Kind="ChevronRight" VerticalAlignment="Center"/>
-                                    </StackPanel>
-                                </Button>
+                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
                             </StackPanel>
                         </Border>
+
+                        <Grid Width="46" Height="46" Margin="10,0,0,0" VerticalAlignment="Center"
+                              ToolTip="Копилка штрафов за просрочку">
+                            <materialDesign:PackIcon x:Name="PiggyBank" Kind="PiggyBank" Width="34" Height="34"
+                                                      Foreground="{StaticResource SuccessBrush}"
+                                                      HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                      RenderTransformOrigin="0.5,0.5">
+                                <materialDesign:PackIcon.RenderTransform>
+                                    <ScaleTransform x:Name="PiggyScale" ScaleX="1" ScaleY="1"/>
+                                </materialDesign:PackIcon.RenderTransform>
+                            </materialDesign:PackIcon>
+                            <TextBlock x:Name="PenaltyText" Text=""
+                                       HorizontalAlignment="Center" VerticalAlignment="Top"
+                                       Margin="0,-12,0,0"
+                                       FontSize="13" FontWeight="Bold"
+                                       Foreground="{StaticResource SuccessBrush}"
+                                       Opacity="0" IsHitTestVisible="False"/>
+                        </Grid>
+
+                        <Grid x:Name="OwlBlinkHost" Width="46" Height="46" Margin="2,0,0,0"
+                              VerticalAlignment="Center" Background="Transparent"
+                              ToolTip="Сова-хранитель фонда"
+                              Style="{StaticResource OwlBlinkStyle}">
+                            <materialDesign:PackIcon Kind="Owl" Width="34" Height="34"
+                                                      Foreground="{StaticResource PrimaryBrush}"
+                                                      HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                      RenderTransformOrigin="0.5,0.5">
+                                <materialDesign:PackIcon.RenderTransform>
+                                    <TransformGroup>
+                                        <ScaleTransform x:Name="OwlHopScale" ScaleX="1" ScaleY="1"/>
+                                        <RotateTransform x:Name="OwlRotate"/>
+                                    </TransformGroup>
+                                </materialDesign:PackIcon.RenderTransform>
+                            </materialDesign:PackIcon>
+                        </Grid>
                     </StackPanel>
-                </materialDesign:Card>
-            </StackPanel>
-        </ScrollViewer>
-    </materialDesign:DialogHost>
+                </Grid>
+
+                <!-- Вкладки -->
+                <Grid Grid.Row="1">
+                    <TabControl x:Name="MainTabs" Background="Transparent" BorderThickness="0"
+                                SelectionChanged="MainTabs_SelectionChanged">
+                        <TabControl.Resources>
+                            <Style TargetType="TabItem" BasedOn="{StaticResource MaterialDesignTabItem}">
+                                <Setter Property="FontSize" Value="14"/>
+                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                <Setter Property="Padding" Value="20,10"/>
+                            </Style>
+                        </TabControl.Resources>
+
+                        <!-- ============ ВКЛАДКА 1: КНИГИ ============ -->
+                        <TabItem Header="Книги">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,16,0,0">
+                                <StackPanel>
+
+                                    <materialDesign:Card Padding="16" UniformCornerRadius="12" Margin="0,0,0,16">
+                                        <WrapPanel behaviors:StaggeredEntrance.IsEnabled="True">
+                                            <Button Style="{StaticResource MaterialDesignRaisedButton}" Command="{Binding OpenAddDialogCommand}" Margin="0,0,8,8">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Kind="Plus" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="В конец" Margin="6,0,0,0"/>
+                                                </StackPanel>
+                                            </Button>
+
+                                            <Button Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding AddSortedCommand}" Margin="0,0,8,8" ToolTip="Добавить с сохранением алфавитного порядка">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Kind="SortAlphabeticalAscending" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="По алфавиту" Margin="6,0,0,0"/>
+                                                </StackPanel>
+                                            </Button>
+
+                                            <Border x:Name="ListTypeBadge" Background="{DynamicResource AppBackgroundBrush}" CornerRadius="6"
+                                                    Padding="12,4" Margin="0,0,16,8" VerticalAlignment="Center"
+                                                    BorderBrush="{StaticResource PrimaryBrush}" BorderThickness="1"
+                                                    RenderTransformOrigin="0.5,0.5">
+                                                <Border.RenderTransform>
+                                                    <ScaleTransform x:Name="ListTypeScale" ScaleX="1" ScaleY="1"/>
+                                                </Border.RenderTransform>
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <TextBlock x:Name="ListTypeLabel" Text="{Binding ListTypeLabel}" VerticalAlignment="Center" Margin="0,0,8,0" FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource PrimaryBrush}"/>
+                                                    <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}" IsChecked="{Binding IsDoubly, Mode=TwoWay}" ToolTip="Переключить тип списка"/>
+                                                </StackPanel>
+                                            </Border>
+
+                                            <Button Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding OpenRequestDialogCommand}" Margin="0,0,8,8">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Kind="Magnify" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="Заявка" Margin="6,0,0,0"/>
+                                                </StackPanel>
+                                            </Button>
+
+                                            <Button Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding DeleteSelectedCommand}" Margin="0,0,8,8" ToolTip="Удалить выбранную">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Kind="DeleteOutline" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="Удалить" Margin="6,0,0,0"/>
+                                                </StackPanel>
+                                            </Button>
+
+                                            <Button Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding ClearAllCommand}" Margin="0,0,8,8">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Kind="DeleteSweepOutline" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="Очистить" Margin="6,0,0,0"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </WrapPanel>
+                                    </materialDesign:Card>
+
+                                    <materialDesign:Card x:Name="BooksGridHost" Padding="0" UniformCornerRadius="12"
+                                                         RenderTransformOrigin="0.5,0.5">
+                                        <materialDesign:Card.RenderTransform>
+                                            <TransformGroup>
+                                                <RotateTransform x:Name="ShelfRotate"/>
+                                                <TranslateTransform x:Name="PageTranslate"/>
+                                            </TransformGroup>
+                                        </materialDesign:Card.RenderTransform>
+                                        <StackPanel>
+                                            <Border Padding="16,10" Background="{DynamicResource AppBackgroundBrush}">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="{Binding TotalBooksInfo}"
+                                                               VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding PageInfo}"
+                                                               VerticalAlignment="Center" FontSize="13"
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                </Grid>
+                                            </Border>
+
+                                            <DataGrid x:Name="BooksGrid"
+                                                      ItemsSource="{Binding PagedBooks}"
+                                                      SelectedItem="{Binding SelectedBook, Mode=TwoWay}"
+                                                      AutoGenerateColumns="False"
+                                                      CanUserAddRows="False"
+                                                      CanUserDeleteRows="False"
+                                                      IsReadOnly="True"
+                                                      HeadersVisibility="Column"
+                                                      GridLinesVisibility="Horizontal"
+                                                      Background="{DynamicResource SurfaceBrush}"
+                                                      BorderThickness="0"
+                                                      RowHeight="44"
+                                                      ColumnHeaderHeight="44"
+                                                      RowStyle="{StaticResource BookRowStyle}"
+                                                      LoadingRow="BooksGrid_LoadingRow"
+                                                      MouseDoubleClick="BooksGrid_MouseDoubleClick"
+                                                      VirtualizingPanel.IsVirtualizing="False">
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Header="Автор" Binding="{Binding Author}" Width="*"/>
+                                                    <DataGridTextColumn Header="Название" Binding="{Binding Title}" Width="*"/>
+                                                    <DataGridTextColumn Header="Жанр" Binding="{Binding Genre}" Width="120"/>
+                                                    <DataGridTextColumn Header="Год" Binding="{Binding Year}" Width="80"/>
+                                                    <DataGridTextColumn Header="Стр." Binding="{Binding Pages}" Width="80"/>
+                                                    <DataGridTextColumn Header="Экз." Binding="{Binding Copies}" Width="80"/>
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+
+                                            <Border Padding="12" Background="{DynamicResource AppBackgroundBrush}">
+                                                <StackPanel>
+                                                    <ProgressBar x:Name="ShelfProgress" Minimum="0" Maximum="100"
+                                                                 Height="6" Margin="0,0,0,10" Value="0"
+                                                                 Foreground="{StaticResource PrimaryBrush}"
+                                                                 Background="{DynamicResource SurfaceBrush}"
+                                                                 BorderThickness="0"
+                                                                 ToolTip="Заполненность полки"/>
+                                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                                        <Button Command="{Binding PrevPageCommand}"
+                                                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                                Margin="0,0,16,0"
+                                                                ToolTip="Предыдущая страница">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <materialDesign:PackIcon Kind="ChevronLeft" VerticalAlignment="Center"/>
+                                                                <TextBlock Text="Назад" Margin="4,0,0,0"/>
+                                                            </StackPanel>
+                                                        </Button>
+
+                                                        <Button Command="{Binding NextPageCommand}"
+                                                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                                ToolTip="Следующая страница">
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <TextBlock Text="Вперёд" Margin="0,0,4,0"/>
+                                                                <materialDesign:PackIcon Kind="ChevronRight" VerticalAlignment="Center"/>
+                                                            </StackPanel>
+                                                        </Button>
+                                                    </StackPanel>
+                                                </StackPanel>
+                                            </Border>
+                                        </StackPanel>
+                                    </materialDesign:Card>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </TabItem>
+
+                        <!-- ============ ВКЛАДКА 2: ЧИТАТЕЛИ ============ -->
+                        <TabItem Header="Читатели">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,16,0,0">
+                                <StackPanel>
+                                    <materialDesign:Card Padding="16" UniformCornerRadius="12" Margin="0,0,0,16">
+                                        <WrapPanel behaviors:StaggeredEntrance.IsEnabled="True">
+                                            <Button Style="{StaticResource MaterialDesignRaisedButton}" Command="{Binding OpenAddReaderDialogCommand}" Margin="0,0,8,8">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Kind="AccountPlus" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="Добавить читателя" Margin="6,0,0,0"/>
+                                                </StackPanel>
+                                            </Button>
+
+                                            <Button Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding DeleteSelectedReaderCommand}" Margin="0,0,8,8" ToolTip="Удалить выбранного читателя">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Kind="AccountRemove" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="Удалить" Margin="6,0,0,0"/>
+                                                </StackPanel>
+                                            </Button>
+                                        </WrapPanel>
+                                    </materialDesign:Card>
+
+                                    <materialDesign:Card Padding="0" UniformCornerRadius="12">
+                                        <StackPanel>
+                                            <Border Padding="16,10" Background="{DynamicResource AppBackgroundBrush}">
+                                                <TextBlock Text="{Binding Readers.Count, StringFormat='Всего читателей: {0}'}"
+                                                           VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold"
+                                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                            </Border>
+
+                                            <DataGrid ItemsSource="{Binding Readers}"
+                                                      SelectedItem="{Binding SelectedReader, Mode=TwoWay}"
+                                                      AutoGenerateColumns="False"
+                                                      CanUserAddRows="False"
+                                                      CanUserDeleteRows="False"
+                                                      IsReadOnly="True"
+                                                      HeadersVisibility="Column"
+                                                      GridLinesVisibility="Horizontal"
+                                                      Background="{DynamicResource SurfaceBrush}"
+                                                      BorderThickness="0"
+                                                      RowHeight="44"
+                                                      ColumnHeaderHeight="44"
+                                                      VirtualizingPanel.IsVirtualizing="False">
+                                                <DataGrid.RowStyle>
+                                                    <Style TargetType="DataGridRow" BasedOn="{StaticResource AnimatedDataGridRow}"/>
+                                                </DataGrid.RowStyle>
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Header="ФИО" Binding="{Binding FullName}" Width="*"/>
+                                                    <DataGridTextColumn Header="Номер билета" Binding="{Binding TicketNumber}" Width="150"/>
+                                                    <DataGridTextColumn Header="Телефон" Binding="{Binding Phone}" Width="180"/>
+                                                    <DataGridTextColumn Header="Адрес" Binding="{Binding Address}" Width="*"/>
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </StackPanel>
+                                    </materialDesign:Card>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </TabItem>
+
+                        <!-- ============ ВКЛАДКА 3: ВЫДАЧИ ============ -->
+                        <TabItem Header="Выдачи">
+                            <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,16,0,0">
+                                <StackPanel>
+
+                                    <materialDesign:Card Padding="16" UniformCornerRadius="12" Margin="0,0,0,16">
+                                        <WrapPanel behaviors:StaggeredEntrance.IsEnabled="True">
+                                            <Button Style="{StaticResource MaterialDesignRaisedButton}"
+                                                    Command="{Binding OpenIssueDialogCommand}" Margin="0,0,8,8">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Kind="BookArrowRight" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="Выдать книгу" Margin="6,0,0,0"/>
+                                                </StackPanel>
+                                            </Button>
+
+                                            <Button Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                    Command="{Binding ReturnLoanCommand}" Margin="0,0,8,8"
+                                                    ToolTip="Вернуть выбранную книгу">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Kind="BookArrowLeft" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="Принять возврат" Margin="6,0,0,0"/>
+                                                </StackPanel>
+                                            </Button>
+
+                                            <Button Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                    Command="{Binding DeleteLoanCommand}" Margin="0,0,8,8"
+                                                    ToolTip="Удалить запись о выдаче">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <materialDesign:PackIcon Kind="DeleteOutline" VerticalAlignment="Center"/>
+                                                    <TextBlock Text="Удалить запись" Margin="6,0,0,0"/>
+                                                </StackPanel>
+                                            </Button>
+
+                                            <Border Background="{DynamicResource AppBackgroundBrush}"
+                                                    CornerRadius="6" Padding="12,4" Margin="0,0,16,8"
+                                                    VerticalAlignment="Center"
+                                                    BorderBrush="{StaticResource ErrorBrush}" BorderThickness="1">
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <TextBlock Text="Только должники" VerticalAlignment="Center" Margin="0,0,8,0"
+                                                               FontSize="12" FontWeight="SemiBold" Foreground="{StaticResource ErrorBrush}"/>
+                                                    <ToggleButton Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                                                  IsChecked="{Binding ShowOnlyOverdue, Mode=TwoWay}"
+                                                                  ToolTip="Показать только просроченные выдачи"/>
+                                                </StackPanel>
+                                            </Border>
+                                        </WrapPanel>
+                                    </materialDesign:Card>
+
+                                    <Border x:Name="OverdueBanner"
+                                            Style="{StaticResource OverdueBannerStyle}"
+                                            Background="#FEE2E2" CornerRadius="8"
+                                            Margin="0,0,0,12">
+                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="14,0">
+                                            <materialDesign:PackIcon Kind="AlertCircleOutline" Width="20" Height="20"
+                                                                      Foreground="{StaticResource ErrorBrush}"
+                                                                      VerticalAlignment="Center"/>
+                                            <TextBlock Text="Показаны только просроченные выдачи — самые старые сверху."
+                                                       Margin="10,0,0,0" FontSize="12"
+                                                       Foreground="{StaticResource ErrorBrush}"
+                                                       VerticalAlignment="Center" TextWrapping="Wrap"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <materialDesign:Card Padding="0" UniformCornerRadius="12">
+                                        <StackPanel>
+                                            <Border Padding="16,10" Background="{DynamicResource AppBackgroundBrush}">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <TextBlock Grid.Column="0" Text="{Binding TotalLoansInfo}"
+                                                               VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                                    <TextBlock Grid.Column="1" Text="{Binding OverdueCountInfo}"
+                                                               VerticalAlignment="Center" FontSize="13" FontWeight="Bold"
+                                                               Foreground="{StaticResource ErrorBrush}"/>
+                                                </Grid>
+                                            </Border>
+
+                                            <DataGrid x:Name="LoansGrid"
+                                                      ItemsSource="{Binding FilteredLoans}"
+                                                      SelectedItem="{Binding SelectedLoan, Mode=TwoWay}"
+                                                      AutoGenerateColumns="False"
+                                                      CanUserAddRows="False"
+                                                      CanUserDeleteRows="False"
+                                                      IsReadOnly="True"
+                                                      HeadersVisibility="Column"
+                                                      GridLinesVisibility="Horizontal"
+                                                      Background="{DynamicResource SurfaceBrush}"
+                                                      BorderThickness="0"
+                                                      RowHeight="44"
+                                                      ColumnHeaderHeight="44"
+                                                      VirtualizingPanel.IsVirtualizing="False">
+
+                                                <DataGrid.RowStyle>
+                                                    <Style TargetType="DataGridRow" BasedOn="{StaticResource AnimatedDataGridRow}">
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsOverdue}" Value="True">
+                                                                <Setter Property="Background" Value="#FEE2E2"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsReturned}" Value="True">
+                                                                <Setter Property="Foreground" Value="#94A3B8"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </DataGrid.RowStyle>
+
+                                                <DataGrid.Columns>
+                                                    <DataGridTextColumn Header="Читатель" Binding="{Binding ReaderName}" Width="*"/>
+                                                    <DataGridTextColumn Header="Книга" Binding="{Binding BookTitle}" Width="*"/>
+                                                    <DataGridTextColumn Header="Выдана" Binding="{Binding IssueDate}" Width="110"/>
+                                                    <DataGridTextColumn Header="Срок" Binding="{Binding DueDate}" Width="110"/>
+                                                    <DataGridTextColumn Header="Возврат" Binding="{Binding ReturnDate}" Width="110"/>
+                                                    <DataGridTextColumn Header="Статус" Binding="{Binding Status}" Width="130"/>
+                                                </DataGrid.Columns>
+                                            </DataGrid>
+                                        </StackPanel>
+                                    </materialDesign:Card>
+                                </StackPanel>
+                            </ScrollViewer>
+                        </TabItem>
+                    </TabControl>
+
+                    <Ellipse x:Name="BusyBall"
+                             Width="16" Height="16" Panel.ZIndex="500"
+                             Fill="{StaticResource PrimaryBrush}"
+                             HorizontalAlignment="Center" VerticalAlignment="Center"
+                             IsHitTestVisible="False"
+                             Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}"
+                             Style="{StaticResource BusyBallStyle}"
+                             MouseLeftButtonDown="BusyBall_MouseLeftButtonDown"/>
+                </Grid>
+            </Grid>
+        </materialDesign:DialogHost>
+
+        <!-- Слой для частиц и «полётов» поверх всего интерфейса -->
+        <Canvas x:Name="OverlayCanvas" Panel.ZIndex="1000" IsHitTestVisible="False"/>
+    </Grid>
 </UserControl>

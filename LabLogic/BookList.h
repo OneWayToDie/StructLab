@@ -31,6 +31,7 @@ namespace Lab01 {
         virtual int FindForRequest(const std::string& genre, int targetPages) const = 0;
         virtual bool SaveToFile(const std::string& filename) const = 0;
         virtual bool LoadFromFile(const std::string& filename) = 0;
+        virtual bool AdjustCopies(int bookId, int delta) = 0;
     };
 
     // --- ÎÄÍÎÑÂßÇÍÛÉ ÑÏÈÑÎÊ ---
@@ -60,6 +61,7 @@ namespace Lab01 {
         int FindForRequest(const std::string& genre, int targetPages) const override;
         bool SaveToFile(const std::string& filename) const override;
         bool LoadFromFile(const std::string& filename) override;
+        bool AdjustCopies(int bookId, int delta) override;
     };
 
     // --- ÄÂÓÑÂßÇÍÛÉ ÑÏÈÑÎÊ ---
@@ -91,5 +93,6 @@ namespace Lab01 {
         int FindForRequest(const std::string& genre, int targetPages) const override;
         bool SaveToFile(const std::string& filename) const override;
         bool LoadFromFile(const std::string& filename) override;
+        bool AdjustCopies(int bookId, int delta) override;
     };
 }

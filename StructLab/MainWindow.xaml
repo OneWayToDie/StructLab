@@ -88,6 +88,32 @@
 
                         <Separator Margin="0,8,0,16"/>
 
+                        <!-- Анимации -->
+                        <Grid Margin="0,0,0,16">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Забавные анимации"
+                                           FontSize="14"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <TextBlock Text="Полёты книг, конфетти, сова и копилка"
+                                           FontSize="12"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           Margin="0,2,0,0"/>
+                            </StackPanel>
+
+                            <ToggleButton Grid.Column="1"
+                                          Style="{StaticResource MaterialDesignSwitchToggleButton}"
+                                          IsChecked="{Binding AnimationsEnabled, Mode=TwoWay}"
+                                          VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <Separator Margin="0,8,0,16"/>
+
                         <!-- Язык -->
                         <Grid Margin="0,0,0,16">
                             <Grid.ColumnDefinitions>

@@ -34,5 +34,17 @@ namespace StructLab.Properties {
                 this["IsDarkTheme"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool EnableFunAnimations {
+            get {
+                return ((bool)(this["EnableFunAnimations"]));
+            }
+            set {
+                this["EnableFunAnimations"] = value;
+            }
+        }
     }
 }

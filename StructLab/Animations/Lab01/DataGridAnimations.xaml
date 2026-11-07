@@ -1,0 +1,52 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!--
+        Стиль появления строк в DataGrid:
+        Opacity 0→1, TranslateY 20→0.
+        Требует VirtualizingPanel.IsVirtualizing="False" у DataGrid.
+    -->
+    <Style x:Key="AnimatedDataGridRow" TargetType="DataGridRow">
+        <Setter Property="Opacity" Value="0"/>
+        <Setter Property="RenderTransform">
+            <Setter.Value>
+                <TranslateTransform Y="20"/>
+            </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+            <EventTrigger RoutedEvent="Loaded">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                         From="0" To="1"
+                                         Duration="0:0:0.35">
+                            <DoubleAnimation.EasingFunction>
+                                <CubicEase EasingMode="EaseOut"/>
+                            </DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                        <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                         From="20" To="0"
+                                         Duration="0:0:0.35">
+                            <DoubleAnimation.EasingFunction>
+                                <CubicEase EasingMode="EaseOut"/>
+                            </DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!--
+        Строка только что добавленной книги: мягкая подсветка фона.
+        Флаг IsNew транзиентный, поэтому после его сброса подсветка исчезает.
+    -->
+    <Style x:Key="BookRowStyle" TargetType="DataGridRow" BasedOn="{StaticResource AnimatedDataGridRow}">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsNew}" Value="True">
+                <Setter Property="Background" Value="#E0E7FF"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+</ResourceDictionary>

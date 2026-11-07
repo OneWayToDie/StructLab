@@ -14,6 +14,7 @@ namespace StructLab.ViewModels
 		private LabInfo _selectedLab;
 		private bool _isSettingsOpen;
 		private bool _isDarkTheme;
+		private bool _animationsEnabled;
 
 		public ObservableCollection<LabInfo> Labs { get; }
 
@@ -55,6 +56,18 @@ namespace StructLab.ViewModels
 			}
 		}
 
+		public bool AnimationsEnabled
+		{
+			get => _animationsEnabled;
+			set
+			{
+				if (!SetProperty(ref _animationsEnabled, value)) return;
+
+				Properties.Settings.Default.EnableFunAnimations = value;
+				Properties.Settings.Default.Save();
+			}
+		}
+
 		public RelayCommand OpenSettingsCommand { get; }
 
 		public MainViewModel()
@@ -89,6 +102,7 @@ namespace StructLab.ViewModels
 
 			// Восстанавливаем сохранённую тему при запуске
 			IsDarkTheme = Properties.Settings.Default.IsDarkTheme;
+			_animationsEnabled = Properties.Settings.Default.EnableFunAnimations;
 		}
 
 		private void NavigateToLab(LabInfo lab)

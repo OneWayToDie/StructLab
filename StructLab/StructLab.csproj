@@ -86,10 +86,17 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Behaviors\ButtonSquash.cs" />
+    <Compile Include="Behaviors\StaggeredEntrance.cs" />
+    <Compile Include="Controls\AnimatedNumberTextBlock.cs" />
     <Compile Include="Converters\NullOrEmptyToVisibilityConverter.cs" />
+    <Compile Include="Models\ObservableModel.cs" />
     <Compile Include="Models\Lab01\Book.cs" />
+    <Compile Include="Models\Lab01\Loan.cs" />
+    <Compile Include="Models\Lab01\Reader.cs" />
     <Compile Include="Models\LabInfo.cs" />
     <Compile Include="Services\NativeMethods.cs" />
+    <Compile Include="ViewModels\Lab01\Lab01Events.cs" />
     <Compile Include="ViewModels\Lab01\Lab01ViewModel.cs" />
     <Compile Include="ViewModels\LabViewModelBase.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
@@ -98,9 +105,24 @@
     <Compile Include="Views\HomeView.xaml.cs">
       <DependentUpon>HomeView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Lab01\Lab01View.Animations.cs">
+      <DependentUpon>Lab01View.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Lab01\Lab01View.xaml.cs">
       <DependentUpon>Lab01View.xaml</DependentUpon>
     </Compile>
+    <Page Include="Animations\Lab01\DataGridAnimations.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Animations\Lab01\FeedbackAnimations.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Animations\Lab01\MicroAnimations.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

@@ -30,9 +30,21 @@
     <ClCompile Include="DoublyBookList.cpp">
       <Filter>Lab01</Filter>
     </ClCompile>
+    <ClCompile Include="ReaderList.cpp">
+      <Filter>Lab01</Filter>
+    </ClCompile>
+    <ClCompile Include="LoanList.cpp">
+      <Filter>Lab01</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BookList.h">
+      <Filter>Lab01</Filter>
+    </ClInclude>
+    <ClInclude Include="ReaderList.h">
+      <Filter>Lab01</Filter>
+    </ClInclude>
+    <ClInclude Include="LoanList.h">
       <Filter>Lab01</Filter>
     </ClInclude>
   </ItemGroup>

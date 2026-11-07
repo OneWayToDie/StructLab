@@ -152,4 +152,18 @@ namespace Lab01 {
         }
         in.close(); return true;
     }
+
+    bool DoublyBookList::AdjustCopies(int bookId, int delta) {
+        DNode* curr = head;
+        while (curr) {
+            if (curr->data.id == bookId) {
+                int newCopies = curr->data.copies + delta;
+                if (newCopies < 0) return false;
+                curr->data.copies = newCopies;
+                return true;
+            }
+            curr = curr->next;
+        }
+        return false;
+    }
 }
