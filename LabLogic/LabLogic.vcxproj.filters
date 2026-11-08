@@ -1,51 +1,75 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Source Files">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Header Files">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="Lab01">
       <UniqueIdentifier>{37af7f1b-1972-435e-af1c-98c5ea90b928}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Lab01\Header">
+      <UniqueIdentifier>{fc15595e-abdf-44bc-af4f-881ec8bdf528}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lab02">
+      <UniqueIdentifier>{11586fd4-ab73-4b93-8268-4abd8ec0344a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lab02\Header">
+      <UniqueIdentifier>{a6dd5d6d-b724-4625-8fdd-f06121ecb0ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lab01\Source">
+      <UniqueIdentifier>{fb79cd78-8c3f-4058-a3d5-50552bcca559}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lab02\Source">
+      <UniqueIdentifier>{15cb1b5a-cd2d-4ba4-97ef-e1d7cafa6d09}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="dllmain.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="BookList.cpp">
-      <Filter>Lab01</Filter>
+      <Filter>Lab01\Source</Filter>
     </ClCompile>
     <ClCompile Include="BookListExports.cpp">
-      <Filter>Lab01</Filter>
+      <Filter>Lab01\Source</Filter>
     </ClCompile>
     <ClCompile Include="DoublyBookList.cpp">
-      <Filter>Lab01</Filter>
-    </ClCompile>
-    <ClCompile Include="ReaderList.cpp">
-      <Filter>Lab01</Filter>
+      <Filter>Lab01\Source</Filter>
     </ClCompile>
     <ClCompile Include="LoanList.cpp">
-      <Filter>Lab01</Filter>
+      <Filter>Lab01\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="ReaderList.cpp">
+      <Filter>Lab01\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="BST.cpp">
+      <Filter>Lab02\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="AVLTree.cpp">
+      <Filter>Lab02\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="TaskTree.cpp">
+      <Filter>Lab02\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="lab02Exports.cpp">
+      <Filter>Lab02\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BookList.h">
-      <Filter>Lab01</Filter>
-    </ClInclude>
-    <ClInclude Include="ReaderList.h">
-      <Filter>Lab01</Filter>
+      <Filter>Lab01\Header</Filter>
     </ClInclude>
     <ClInclude Include="LoanList.h">
-      <Filter>Lab01</Filter>
+      <Filter>Lab01\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="ReaderList.h">
+      <Filter>Lab01\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="BST.h">
+      <Filter>Lab02\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="AVLTree.h">
+      <Filter>Lab02\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Task.h">
+      <Filter>Lab02\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="TaskTree.h">
+      <Filter>Lab02\Header</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,10 +1,12 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Media;
 using MaterialDesignThemes.Wpf;
 using StructLab.Models;
 using StructLab.Views;
 using StructLab.Views.Lab01;
+using StructLab.Views.Lab02;
 
 namespace StructLab.ViewModels
 {
@@ -29,9 +31,20 @@ namespace StructLab.ViewModels
 			get => _selectedLab;
 			set
 			{
-				if (SetProperty(ref _selectedLab, value) && value != null)
+				if (!SetProperty(ref _selectedLab, value) || value == null)
+				{
+					return;
+				}
+
+				try
 				{
 					NavigateToLab(value);
+				}
+				catch (Exception ex)
+				{
+					MessageBox.Show(
+						"Не удалось открыть раздел «" + value.Title + "».\n\n" + ex.Message,
+						"StructLab", MessageBoxButton.OK, MessageBoxImage.Error);
 				}
 			}
 		}
@@ -85,8 +98,8 @@ namespace StructLab.ViewModels
 				{
 					Number = "2",
 					Title = "Деревья",
-					Description = "Бинарные деревья поиска",
-					ViewType = null   // ← вот это единственное новое
+					Description = "BST и AVL · Менеджер задач",
+					ViewType = typeof(Lab02View)
 				},
 				new LabInfo { Number = "3", Title = "Классы и объекты", Description = "Простейшие классы", ViewType = null },
 				new LabInfo { Number = "4", Title = "Разработка классов", Description = "Перегрузка операторов", ViewType = null },
@@ -112,7 +125,8 @@ namespace StructLab.ViewModels
 				CurrentView = new HomeView();
 				return;
 			}
-			CurrentView = System.Activator.CreateInstance(lab.ViewType);
+
+			CurrentView = Activator.CreateInstance(lab.ViewType);
 		}
 
 		private void ApplyTheme(bool dark)

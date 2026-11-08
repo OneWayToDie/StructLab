@@ -12,9 +12,6 @@
         <vm:Lab01ViewModel/>
     </UserControl.DataContext>
 
-    <!-- ============================================================ -->
-    <!-- ПОДКЛЮЧЕНИЕ СЛОВАРЕЙ АНИМАЦИЙ -->
-    <!-- ============================================================ -->
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -49,7 +46,7 @@
             <materialDesign:DialogHost.DialogContent>
                 <Grid behaviors:ButtonSquash.IsEnabled="True">
 
-                    <!-- ===== 1. ДИАЛОГ: ДОБАВЛЕНИЕ КНИГИ ===== -->
+                    <!-- ===== 1. ДОБАВИТЬ КНИГУ ===== -->
                     <materialDesign:Card UniformCornerRadius="16" Width="520"
                                          Style="{StaticResource AnimatedDialogCard}"
                                          Visibility="{Binding IsAddDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -103,7 +100,7 @@
                         </StackPanel>
                     </materialDesign:Card>
 
-                    <!-- ===== 2. ДИАЛОГ: ЗАЯВКА ===== -->
+                    <!-- ===== 2. ЗАЯВКА ===== -->
                     <materialDesign:Card x:Name="RequestCard" UniformCornerRadius="16" Width="480"
                                          Style="{StaticResource AnimatedDialogCard}"
                                          Visibility="{Binding IsRequestDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -128,7 +125,7 @@
                         </StackPanel>
                     </materialDesign:Card>
 
-                    <!-- ===== 3. ДИАЛОГ: СООБЩЕНИЕ ===== -->
+                    <!-- ===== 3. СООБЩЕНИЕ ===== -->
                     <materialDesign:Card UniformCornerRadius="16" Width="450"
                                          Style="{StaticResource AnimatedDialogCard}"
                                          Visibility="{Binding IsMessageDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -151,7 +148,7 @@
                         </StackPanel>
                     </materialDesign:Card>
 
-                    <!-- ===== 4. ДИАЛОГ: ДОБАВЛЕНИЕ ЧИТАТЕЛЯ ===== -->
+                    <!-- ===== 4. ДОБАВИТЬ ЧИТАТЕЛЯ ===== -->
                     <materialDesign:Card UniformCornerRadius="16" Width="450"
                                          Style="{StaticResource AnimatedDialogCard}"
                                          Visibility="{Binding IsAddReaderDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -183,7 +180,7 @@
                         </StackPanel>
                     </materialDesign:Card>
 
-                    <!-- ===== 5. ДИАЛОГ: ВЫДАЧА КНИГИ ===== -->
+                    <!-- ===== 5. ВЫДАТЬ КНИГУ ===== -->
                     <materialDesign:Card UniformCornerRadius="16" Width="500"
                                          Style="{StaticResource AnimatedDialogCard}"
                                          Visibility="{Binding IsIssueDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
@@ -244,7 +241,7 @@
                         </StackPanel>
                     </materialDesign:Card>
 
-                    <!-- ===== 6. ДИАЛОГ: КАРТОЧКА КНИГИ (flip) ===== -->
+                    <!-- ===== 6. КАРТОЧКА КНИГИ (flip) ===== -->
                     <materialDesign:Card x:Name="DetailsFlipRoot" UniformCornerRadius="16" Width="480"
                                          Style="{StaticResource AnimatedDialogCard}"
                                          RenderTransformOrigin="0.5,0.5"
@@ -254,7 +251,6 @@
                         </materialDesign:Card.RenderTransform>
 
                         <Grid>
-                            <!-- Лицевая сторона: «обложка» -->
                             <Grid x:Name="DetailsFront">
                                 <StackPanel>
                                     <Border Background="{StaticResource PrimaryBrush}" CornerRadius="16,16,0,0" Padding="24,20">
@@ -280,7 +276,6 @@
                                 </StackPanel>
                             </Grid>
 
-                            <!-- Обратная сторона: характеристики -->
                             <Grid x:Name="DetailsBack" Opacity="0">
                                 <StackPanel>
                                     <Border Background="{StaticResource PrimaryBrush}" CornerRadius="16,16,0,0" Padding="24,20">
@@ -339,11 +334,21 @@
                                             <TextBlock Text="Код" Foreground="{DynamicResource TextSecondaryBrush}" FontSize="13"/>
                                             <TextBlock Grid.Column="1" Text="{Binding DetailsBook.Id, StringFormat='#{0}'}" FontSize="13" Foreground="{DynamicResource TextPrimaryBrush}"/>
                                         </Grid>
+
+                                        <Button Click="OpenReader_Click"
+                                                Style="{StaticResource MaterialDesignRaisedButton}"
+                                                Margin="0,20,0,0"
+                                                HorizontalAlignment="Stretch">
+                                            <StackPanel Orientation="Horizontal">
+                                                <materialDesign:PackIcon Kind="BookOpenVariant" VerticalAlignment="Center"/>
+                                                <TextBlock Text="Читать в Викитеке" Margin="8,0,0,0"/>
+                                            </StackPanel>
+                                        </Button>
                                     </StackPanel>
 
                                     <Border Background="{DynamicResource AppBackgroundBrush}" CornerRadius="0,0,16,16" Padding="24,16">
                                         <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                            <Button Content="Закрыть" Style="{StaticResource MaterialDesignRaisedButton}" Width="120"
+                                            <Button Content="Закрыть" Style="{StaticResource MaterialDesignOutlinedButton}" Width="120"
                                                     Command="{x:Static materialDesign:DialogHost.CloseDialogCommand}" IsDefault="True"/>
                                         </StackPanel>
                                     </Border>
@@ -364,7 +369,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- Шапка -->
+                <!-- Шапка: три бейджа -->
                 <Grid Grid.Row="0" Margin="0,0,0,20">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -382,9 +387,23 @@
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+
+                        <!-- НОВАЯ КНОПКА: Библиотека -->
+                        <Button Command="{Binding OpenLibraryCommand}"
+                                Style="{StaticResource MaterialDesignRaisedButton}"
+                                Margin="0,0,16,0"
+                                ToolTip="Открыть читалку книг из Викитеки">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="BookOpenPageVariant" VerticalAlignment="Center"/>
+                                <TextBlock Text="Библиотека" Margin="8,0,0,0" FontWeight="SemiBold"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Бейдж 1: Книги -->
                         <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="10" Padding="14,8"
-                                BorderBrush="{StaticResource PrimaryBrush}" BorderThickness="1">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center" ToolTip="Всего книг в картотеке">
+                                BorderBrush="{StaticResource PrimaryBrush}" BorderThickness="1"
+                                ToolTip="Всего книг в картотеке">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                 <materialDesign:PackIcon Kind="BookOpenPageVariant" Width="20" Height="20"
                                                           Foreground="{StaticResource PrimaryBrush}" VerticalAlignment="Center"/>
                                 <controls:AnimatedNumberTextBlock x:Name="TotalBooksCounter"
@@ -400,40 +419,103 @@
                             </StackPanel>
                         </Border>
 
-                        <Grid Width="46" Height="46" Margin="10,0,0,0" VerticalAlignment="Center"
-                              ToolTip="Копилка штрафов за просрочку">
-                            <materialDesign:PackIcon x:Name="PiggyBank" Kind="PiggyBank" Width="34" Height="34"
-                                                      Foreground="{StaticResource SuccessBrush}"
-                                                      HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                      RenderTransformOrigin="0.5,0.5">
-                                <materialDesign:PackIcon.RenderTransform>
-                                    <ScaleTransform x:Name="PiggyScale" ScaleX="1" ScaleY="1"/>
-                                </materialDesign:PackIcon.RenderTransform>
-                            </materialDesign:PackIcon>
-                            <TextBlock x:Name="PenaltyText" Text=""
-                                       HorizontalAlignment="Center" VerticalAlignment="Top"
-                                       Margin="0,-12,0,0"
-                                       FontSize="13" FontWeight="Bold"
-                                       Foreground="{StaticResource SuccessBrush}"
-                                       Opacity="0" IsHitTestVisible="False"/>
-                        </Grid>
+                        <!-- Бейдж 2: Должники (свинья) -->
+                        <Border x:Name="OverdueBadge"
+                                Background="{DynamicResource SurfaceBrush}" CornerRadius="10" Padding="14,8"
+                                Margin="10,0,0,0"
+                                BorderThickness="1"
+                                ToolTip="Должники (просроченные выдачи)">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="BorderBrush" Value="{StaticResource SuccessBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding OverdueCount, Converter={StaticResource GreaterThanZeroConverter}}" Value="True">
+                                            <Setter Property="BorderBrush" Value="{StaticResource ErrorBrush}"/>
+                                            <Setter Property="Background" Value="#FEE2E2"/>
+                                            <DataTrigger.EnterActions>
+                                                <BeginStoryboard>
+                                                    <Storyboard RepeatBehavior="Forever">
+                                                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                                                         From="1" To="0.7" Duration="0:0:1"
+                                                                         AutoReverse="True"/>
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </DataTrigger.EnterActions>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
 
-                        <Grid x:Name="OwlBlinkHost" Width="46" Height="46" Margin="2,0,0,0"
-                              VerticalAlignment="Center" Background="Transparent"
-                              ToolTip="Сова-хранитель фонда"
-                              Style="{StaticResource OwlBlinkStyle}">
-                            <materialDesign:PackIcon Kind="Owl" Width="34" Height="34"
-                                                      Foreground="{StaticResource PrimaryBrush}"
-                                                      HorizontalAlignment="Center" VerticalAlignment="Center"
-                                                      RenderTransformOrigin="0.5,0.5">
-                                <materialDesign:PackIcon.RenderTransform>
-                                    <TransformGroup>
-                                        <ScaleTransform x:Name="OwlHopScale" ScaleX="1" ScaleY="1"/>
-                                        <RotateTransform x:Name="OwlRotate"/>
-                                    </TransformGroup>
-                                </materialDesign:PackIcon.RenderTransform>
-                            </materialDesign:PackIcon>
-                        </Grid>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <materialDesign:PackIcon x:Name="PiggyBank" Kind="PiggyBank" Width="24" Height="24"
+                                                          VerticalAlignment="Center"
+                                                          RenderTransformOrigin="0.5,0.5">
+                                    <materialDesign:PackIcon.Style>
+                                        <Style TargetType="materialDesign:PackIcon">
+                                            <Setter Property="Foreground" Value="{StaticResource SuccessBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding OverdueCount, Converter={StaticResource GreaterThanZeroConverter}}" Value="True">
+                                                    <Setter Property="Foreground" Value="{StaticResource ErrorBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </materialDesign:PackIcon.Style>
+                                    <materialDesign:PackIcon.RenderTransform>
+                                        <ScaleTransform x:Name="PiggyScale" ScaleX="1" ScaleY="1"/>
+                                    </materialDesign:PackIcon.RenderTransform>
+                                </materialDesign:PackIcon>
+
+                                <controls:AnimatedNumberTextBlock Value="{Binding OverdueCount}"
+                                                                  Text="0"
+                                                                  Margin="8,0,0,0"
+                                                                  FontSize="18" FontWeight="Bold"
+                                                                  VerticalAlignment="Center"
+                                                                  Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <TextBlock Text="должн." Margin="6,0,0,0" FontSize="12"
+                                           VerticalAlignment="Center"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
+
+                                <TextBlock x:Name="PenaltyText" Text=""
+                                           VerticalAlignment="Top"
+                                           Margin="4,-10,0,0"
+                                           FontSize="13" FontWeight="Bold"
+                                           Foreground="{StaticResource SuccessBrush}"
+                                           Opacity="0" IsHitTestVisible="False"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Бейдж 3: Читатели (сова) -->
+                        <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="10" Padding="14,8"
+                                Margin="10,0,0,0"
+                                BorderBrush="{StaticResource PrimaryBrush}" BorderThickness="1"
+                                ToolTip="Всего читателей">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Grid x:Name="OwlBlinkHost" Width="24" Height="24" Background="Transparent"
+                                      Style="{StaticResource OwlBlinkStyle}">
+                                    <materialDesign:PackIcon Kind="Owl" Width="24" Height="24"
+                                                              Foreground="{StaticResource PrimaryBrush}"
+                                                              HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                              RenderTransformOrigin="0.5,0.5">
+                                        <materialDesign:PackIcon.RenderTransform>
+                                            <TransformGroup>
+                                                <ScaleTransform x:Name="OwlHopScale" ScaleX="1" ScaleY="1"/>
+                                                <RotateTransform x:Name="OwlRotate"/>
+                                            </TransformGroup>
+                                        </materialDesign:PackIcon.RenderTransform>
+                                    </materialDesign:PackIcon>
+                                </Grid>
+
+                                <controls:AnimatedNumberTextBlock Value="{Binding Readers.Count}"
+                                                                  Text="0"
+                                                                  Margin="8,0,0,0"
+                                                                  FontSize="18" FontWeight="Bold"
+                                                                  VerticalAlignment="Center"
+                                                                  Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                <TextBlock Text="чит." Margin="6,0,0,0" FontSize="12"
+                                           VerticalAlignment="Center"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"/>
+                            </StackPanel>
+                        </Border>
                     </StackPanel>
                 </Grid>
 
@@ -449,7 +531,7 @@
                             </Style>
                         </TabControl.Resources>
 
-                        <!-- ============ ВКЛАДКА 1: КНИГИ ============ -->
+                        <!-- ===== ВКЛАДКА 1: КНИГИ ===== -->
                         <TabItem Header="Книги">
                             <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,16,0,0">
                                 <StackPanel>
@@ -559,12 +641,59 @@
 
                                             <Border Padding="12" Background="{DynamicResource AppBackgroundBrush}">
                                                 <StackPanel>
-                                                    <ProgressBar x:Name="ShelfProgress" Minimum="0" Maximum="100"
-                                                                 Height="6" Margin="0,0,0,10" Value="0"
-                                                                 Foreground="{StaticResource PrimaryBrush}"
-                                                                 Background="{DynamicResource SurfaceBrush}"
-                                                                 BorderThickness="0"
-                                                                 ToolTip="Заполненность полки"/>
+                                                    <!-- Прогресс-бар (только для 25+ книг, не до конца) -->
+                                                    <Border x:Name="ShelfProgressWrapper" Background="Transparent" VerticalAlignment="Top">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="MaxHeight" Value="0"/>
+                                                                <Setter Property="Opacity" Value="0"/>
+                                                                <Setter Property="Margin" Value="0"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding IsShelfProgressVisible}" Value="True">
+                                                                        <Setter Property="MaxHeight" Value="16"/>
+                                                                        <Setter Property="Opacity" Value="1"/>
+                                                                        <Setter Property="Margin" Value="0,0,0,10"/>
+                                                                        <DataTrigger.EnterActions>
+                                                                            <BeginStoryboard>
+                                                                                <Storyboard>
+                                                                                    <DoubleAnimation Storyboard.TargetProperty="MaxHeight" To="16" Duration="0:0:0.25">
+                                                                                        <DoubleAnimation.EasingFunction>
+                                                                                            <CubicEase EasingMode="EaseOut"/>
+                                                                                        </DoubleAnimation.EasingFunction>
+                                                                                    </DoubleAnimation>
+                                                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" To="1" Duration="0:0:0.2"/>
+                                                                                    <ThicknessAnimation Storyboard.TargetProperty="Margin" To="0,0,0,10" Duration="0:0:0.25"/>
+                                                                                </Storyboard>
+                                                                            </BeginStoryboard>
+                                                                        </DataTrigger.EnterActions>
+                                                                        <DataTrigger.ExitActions>
+                                                                            <BeginStoryboard>
+                                                                                <Storyboard>
+                                                                                    <DoubleAnimation Storyboard.TargetProperty="MaxHeight" To="0" Duration="0:0:0.2">
+                                                                                        <DoubleAnimation.EasingFunction>
+                                                                                            <CubicEase EasingMode="EaseIn"/>
+                                                                                        </DoubleAnimation.EasingFunction>
+                                                                                    </DoubleAnimation>
+                                                                                    <DoubleAnimation Storyboard.TargetProperty="Opacity" To="0" Duration="0:0:0.15"/>
+                                                                                    <ThicknessAnimation Storyboard.TargetProperty="Margin" To="0" Duration="0:0:0.2"/>
+                                                                                </Storyboard>
+                                                                            </BeginStoryboard>
+                                                                        </DataTrigger.ExitActions>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+
+                                                        <ProgressBar x:Name="ShelfProgress"
+                                                                     Minimum="0" Maximum="105"
+                                                                     Height="6"
+                                                                     Value="0"
+                                                                     Foreground="{StaticResource PrimaryBrush}"
+                                                                     Background="{DynamicResource SurfaceBrush}"
+                                                                     BorderThickness="0"
+                                                                     ToolTip="Заполненность полки (для 25+ книг)"/>
+                                                    </Border>
+
                                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                                                         <Button Command="{Binding PrevPageCommand}"
                                                                 Style="{StaticResource MaterialDesignOutlinedButton}"
@@ -593,7 +722,7 @@
                             </ScrollViewer>
                         </TabItem>
 
-                        <!-- ============ ВКЛАДКА 2: ЧИТАТЕЛИ ============ -->
+                        <!-- ===== ВКЛАДКА 2: ЧИТАТЕЛИ ===== -->
                         <TabItem Header="Читатели">
                             <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,16,0,0">
                                 <StackPanel>
@@ -652,7 +781,7 @@
                             </ScrollViewer>
                         </TabItem>
 
-                        <!-- ============ ВКЛАДКА 3: ВЫДАЧИ ============ -->
+                        <!-- ===== ВКЛАДКА 3: ВЫДАЧИ ===== -->
                         <TabItem Header="Выдачи">
                             <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,16,0,0">
                                 <StackPanel>
@@ -788,7 +917,6 @@
             </Grid>
         </materialDesign:DialogHost>
 
-        <!-- Слой для частиц и «полётов» поверх всего интерфейса -->
         <Canvas x:Name="OverlayCanvas" Panel.ZIndex="1000" IsHitTestVisible="False"/>
     </Grid>
 </UserControl>

@@ -1,0 +1,635 @@
+﻿<UserControl x:Class="StructLab.Views.Lab02.Lab02View"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:vm="clr-namespace:StructLab.ViewModels.Lab02"
+             xmlns:models="clr-namespace:StructLab.Models.Lab02"
+             xmlns:behaviors="clr-namespace:StructLab.Behaviors"
+             Background="{DynamicResource AppBackgroundBrush}"
+             behaviors:ButtonSquash.IsEnabled="True">
+
+    <UserControl.DataContext>
+        <vm:Lab02ViewModel/>
+    </UserControl.DataContext>
+
+    <UserControl.RenderTransform>
+        <TranslateTransform/>
+    </UserControl.RenderTransform>
+    <UserControl.Triggers>
+        <EventTrigger RoutedEvent="Loaded">
+            <BeginStoryboard>
+                <Storyboard>
+                    <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0" To="1" Duration="0:0:0.3"/>
+                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                     From="20" To="0" Duration="0:0:0.3">
+                        <DoubleAnimation.EasingFunction>
+                            <CubicEase EasingMode="EaseOut"/>
+                        </DoubleAnimation.EasingFunction>
+                    </DoubleAnimation>
+                </Storyboard>
+            </BeginStoryboard>
+        </EventTrigger>
+    </UserControl.Triggers>
+
+    <Grid>
+
+        <materialDesign:DialogHost Identifier="Lab02Dialog" IsOpen="{Binding IsAnyDialogOpen, Mode=TwoWay}">
+            <materialDesign:DialogHost.DialogContent>
+                <Grid>
+                    <!-- ============ ДИАЛОГ ДОБАВЛЕНИЯ ЗАДАЧИ ============ -->
+                    <materialDesign:Card UniformCornerRadius="16" Width="500"
+                                         Visibility="{Binding IsAddDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <StackPanel>
+                            <Border Background="{StaticResource PrimaryBrush}" CornerRadius="16,16,0,0" Padding="24,20">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="PlaylistPlus" Width="28" Height="28"
+                                                              Foreground="White" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Новая задача" Foreground="White" FontSize="20" FontWeight="SemiBold"
+                                               Margin="12,0,0,0" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+
+                            <StackPanel Margin="24,20,24,8">
+                                <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                         materialDesign:HintAssist.Hint="Что нужно сделать"
+                                         Text="{Binding NewTask.Title, UpdateSourceTrigger=PropertyChanged}"
+                                         Margin="0,0,0,16"/>
+
+                                <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                         materialDesign:HintAssist.Hint="Описание (необязательно)"
+                                         Text="{Binding NewTask.Description, UpdateSourceTrigger=PropertyChanged}"
+                                         AcceptsReturn="True" TextWrapping="Wrap" MinHeight="70"
+                                         VerticalScrollBarVisibility="Auto"
+                                         Margin="0,0,0,16"/>
+
+                                <Grid Margin="0,0,0,16">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="16"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Приоритет (1–10)" FontSize="12"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                        <Slider Value="{Binding NewTask.Priority, Mode=TwoWay}"
+                                                Minimum="1" Maximum="10"
+                                                TickFrequency="1" IsSnapToTickEnabled="True"
+                                                TickPlacement="BottomRight"/>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2">
+                                        <TextBlock Text="Срок (yyyy-MM-dd)" FontSize="12"
+                                                   Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                        <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                                 materialDesign:HintAssist.Hint="2026-11-15"
+                                                 Text="{Binding NewTask.DueDate, UpdateSourceTrigger=PropertyChanged}"/>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Border Background="#FEE2E2" CornerRadius="6" Padding="12,8" Margin="0,4,0,0"
+                                        Visibility="{Binding NewTaskError, Converter={StaticResource NullToVisibilityConverter}}">
+                                    <TextBlock Text="{Binding NewTaskError}"
+                                               Foreground="{StaticResource ErrorBrush}"
+                                               FontSize="12" TextWrapping="Wrap"/>
+                                </Border>
+                            </StackPanel>
+
+                            <Border Background="{DynamicResource AppBackgroundBrush}" CornerRadius="0,0,16,16" Padding="24,16">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Content="Отмена" Style="{StaticResource MaterialDesignOutlinedButton}"
+                                            Command="{Binding CancelAddCommand}" Margin="0,0,8,0"/>
+                                    <Button Content="Добавить" Style="{StaticResource MaterialDesignRaisedButton}"
+                                            Command="{Binding ConfirmAddCommand}" IsDefault="True"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </materialDesign:Card>
+
+                    <!-- ============ ДИАЛОГ СРОЧНЫХ ============ -->
+                    <materialDesign:Card UniformCornerRadius="16" Width="560"
+                                         Visibility="{Binding IsUrgentDialogOpen, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <StackPanel>
+                            <Border Background="{StaticResource PrimaryBrush}" CornerRadius="16,16,0,0" Padding="24,20">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="Fire" Width="28" Height="28"
+                                                              Foreground="White" VerticalAlignment="Center"/>
+                                    <TextBlock Text="Срочные задачи" Foreground="White" FontSize="20" FontWeight="SemiBold"
+                                               Margin="12,0,0,0" VerticalAlignment="Center"/>
+                                    <Border Background="White" CornerRadius="10" Padding="8,2"
+                                            Margin="12,0,0,0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding UrgentTasks.Count}"
+                                                   Foreground="{StaticResource PrimaryBrush}"
+                                                   FontWeight="Bold" FontSize="13"/>
+                                    </Border>
+                                </StackPanel>
+                            </Border>
+
+                            <StackPanel Margin="24,20,24,8">
+                                <TextBlock Text="Топ-10 самых приоритетных невыполненных задач."
+                                           FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"
+                                           TextWrapping="Wrap" Margin="0,0,0,16"/>
+
+                                <TextBlock Text="{Binding UrgentMessage}"
+                                           FontSize="14" FontStyle="Italic"
+                                           Foreground="{DynamicResource TextSecondaryBrush}"
+                                           TextWrapping="Wrap"
+                                           Visibility="{Binding UrgentMessage, Converter={StaticResource NullToVisibilityConverter}}"
+                                           Margin="0,8,0,8"/>
+
+                                <ItemsControl ItemsSource="{Binding UrgentTasks}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{DynamicResource AppBackgroundBrush}"
+                                                    CornerRadius="8" Padding="12,10" Margin="0,0,0,8">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <Border Grid.Column="0" Background="{Binding NodeColor}"
+                                                            CornerRadius="4" Padding="10,4"
+                                                            VerticalAlignment="Center" Margin="0,0,12,0">
+                                                        <TextBlock Text="{Binding Priority}" Foreground="White"
+                                                                   FontWeight="Bold" FontSize="13"/>
+                                                    </Border>
+
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold"
+                                                                   Foreground="{DynamicResource TextPrimaryBrush}"
+                                                                   TextTrimming="CharacterEllipsis"/>
+                                                        <TextBlock Text="{Binding Description}" FontSize="11"
+                                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                                   TextTrimming="CharacterEllipsis"
+                                                                   Visibility="{Binding Description, Converter={StaticResource NullToVisibilityConverter}}"/>
+                                                    </StackPanel>
+
+                                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="12,0,0,0">
+                                                        <TextBlock Text="{Binding DueDate}" FontSize="11"
+                                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                                   HorizontalAlignment="Right"
+                                                                   Visibility="{Binding DueDate, Converter={StaticResource NullToVisibilityConverter}}"/>
+                                                        <TextBlock Text="{Binding StatusLabel}" FontSize="11"
+                                                                   Foreground="{DynamicResource TextSecondaryBrush}"
+                                                                   HorizontalAlignment="Right"/>
+                                                    </StackPanel>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </StackPanel>
+
+                            <Border Background="{DynamicResource AppBackgroundBrush}" CornerRadius="0,0,16,16" Padding="24,16">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                    <Button Content="Закрыть" Style="{StaticResource MaterialDesignRaisedButton}"
+                                            Command="{Binding CloseUrgentCommand}" IsDefault="True" Width="120"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </materialDesign:Card>
+                </Grid>
+            </materialDesign:DialogHost.DialogContent>
+
+            <!-- ============ ОСНОВНОЙ КОНТЕНТ ============ -->
+            <Grid Margin="32,28,32,24">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- ЗАГОЛОВОК -->
+                <Grid Grid.Row="0" Margin="0,0,0,20">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <Border Background="{StaticResource PrimaryBrush}" CornerRadius="8" Width="56" Height="56">
+                            <TextBlock Text="2" FontSize="28" FontWeight="Bold" Foreground="White"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Деревья" FontSize="28" FontWeight="Bold"
+                                       Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            <TextBlock Text="Менеджер задач · BST vs AVL"
+                                       FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}"
+                                       Margin="0,4,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="10" Padding="14,8"
+                                BorderBrush="{StaticResource PrimaryBrush}" BorderThickness="1"
+                                ToolTip="Статистика BST">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="FileTree" Width="18" Height="18"
+                                                          Foreground="{StaticResource PrimaryBrush}"
+                                                          VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding BstInfo}" Margin="8,0,0,0"
+                                           FontSize="13" FontWeight="SemiBold"
+                                           VerticalAlignment="Center"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="10" Padding="14,8"
+                                BorderBrush="{StaticResource SuccessBrush}" BorderThickness="1"
+                                Margin="10,0,0,0"
+                                ToolTip="Статистика AVL">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="FileTree" Width="18" Height="18"
+                                                          Foreground="{StaticResource SuccessBrush}"
+                                                          VerticalAlignment="Center"/>
+                                <TextBlock Text="{Binding AvlInfo}" Margin="8,0,0,0"
+                                           FontSize="13" FontWeight="SemiBold"
+                                           VerticalAlignment="Center"
+                                           Foreground="{DynamicResource TextPrimaryBrush}"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+
+                <!-- ПАНЕЛЬ КНОПОК -->
+                <materialDesign:Card Grid.Row="1" Padding="16,12" UniformCornerRadius="12" Margin="0,0,0,16">
+                    <WrapPanel behaviors:StaggeredEntrance.IsEnabled="True">
+                        <Button Style="{StaticResource MaterialDesignRaisedButton}"
+                                Command="{Binding OpenAddDialogCommand}" Margin="0,0,8,8">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Plus" VerticalAlignment="Center"/>
+                                <TextBlock Text="Новая задача" Margin="6,0,0,0"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Style="{StaticResource MaterialDesignOutlinedButton}"
+                                Command="{Binding ShowUrgentCommand}" Margin="0,0,8,8"
+                                ToolTip="Показать топ-10 самых срочных (O(log n) по BST)">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="Fire" VerticalAlignment="Center"/>
+                                <TextBlock Text="Срочные" Margin="6,0,0,0"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Rectangle Width="1" Fill="{DynamicResource TextSecondaryBrush}"
+                                   Opacity="0.3" Margin="8,4"/>
+
+                        <TextBlock Text="Демонстрация:" VerticalAlignment="Center" Margin="8,0,8,8"
+                                   FontSize="12" Foreground="{DynamicResource TextSecondaryBrush}"/>
+
+                        <Button Style="{StaticResource MaterialDesignOutlinedButton}"
+                                Command="{Binding AddRandom10Command}" Margin="0,0,8,8"
+                                ToolTip="Добавить 10 случайных задач">
+                            <TextBlock Text="+10"/>
+                        </Button>
+
+                        <Button Style="{StaticResource MaterialDesignOutlinedButton}"
+                                Command="{Binding AddRandom50Command}" Margin="0,0,8,8"
+                                ToolTip="Добавить 50 случайных задач">
+                            <TextBlock Text="+50"/>
+                        </Button>
+
+                        <Button Style="{StaticResource MaterialDesignOutlinedButton}"
+                                Command="{Binding AddRandom100Command}" Margin="0,0,8,8"
+                                ToolTip="Добавить 100 случайных задач — BST должен выродиться">
+                            <TextBlock Text="+100"/>
+                        </Button>
+
+                        <Rectangle Width="1" Fill="{DynamicResource TextSecondaryBrush}"
+                                   Opacity="0.3" Margin="8,4"/>
+
+                        <Button Style="{StaticResource MaterialDesignOutlinedButton}"
+                                Command="{Binding DeleteSelectedCommand}" Margin="0,0,8,8"
+                                ToolTip="Удалить выбранную задачу">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="DeleteOutline" VerticalAlignment="Center"/>
+                                <TextBlock Text="Удалить" Margin="6,0,0,0"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Style="{StaticResource MaterialDesignOutlinedButton}"
+                                Command="{Binding ClearAllCommand}" Margin="0,0,8,8">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="DeleteSweepOutline" VerticalAlignment="Center"/>
+                                <TextBlock Text="Очистить" Margin="6,0,0,0"/>
+                            </StackPanel>
+                        </Button>
+                    </WrapPanel>
+                </materialDesign:Card>
+
+                <!-- ОСНОВНАЯ СЕТКА: ЗАДАЧИ | BST | AVL -->
+                <Grid Grid.Row="2">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="440" MinWidth="320"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="16"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- ============ ЛЕВАЯ КОЛОНКА: ТАБЛИЦА ЗАДАЧ ============ -->
+                    <materialDesign:Card Grid.Column="0" Padding="0" UniformCornerRadius="12">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <Border Grid.Row="0" Padding="16,10" Background="{DynamicResource AppBackgroundBrush}">
+                                <StackPanel>
+                                    <TextBlock Text="Фильтр" FontSize="11" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               Margin="0,0,0,6"/>
+                                    <WrapPanel>
+                                        <RadioButton Content="Все" GroupName="TaskFilter"
+                                                     Style="{StaticResource MaterialDesignRadioButton}"
+                                                     IsChecked="{Binding IsFilterAll, Mode=TwoWay}"
+                                                     Margin="0,0,12,4"/>
+                                        <RadioButton Content="Ожидает" GroupName="TaskFilter"
+                                                     Style="{StaticResource MaterialDesignRadioButton}"
+                                                     IsChecked="{Binding IsFilterPending, Mode=TwoWay}"
+                                                     Margin="0,0,12,4"/>
+                                        <RadioButton Content="В работе" GroupName="TaskFilter"
+                                                     Style="{StaticResource MaterialDesignRadioButton}"
+                                                     IsChecked="{Binding IsFilterInProgress, Mode=TwoWay}"
+                                                     Margin="0,0,12,4"/>
+                                        <RadioButton Content="Выполнено" GroupName="TaskFilter"
+                                                     Style="{StaticResource MaterialDesignRadioButton}"
+                                                     IsChecked="{Binding IsFilterDone, Mode=TwoWay}"
+                                                     Margin="0,0,12,4"/>
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <DataGrid Grid.Row="1"
+                                      ItemsSource="{Binding FilteredTasks}"
+                                      SelectedItem="{Binding SelectedTask, Mode=TwoWay}"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      CanUserDeleteRows="False"
+                                      IsReadOnly="True"
+                                      HeadersVisibility="Column"
+                                      GridLinesVisibility="Horizontal"
+                                      Background="{DynamicResource SurfaceBrush}"
+                                      BorderThickness="0"
+                                      RowHeight="40"
+                                      ColumnHeaderHeight="40"
+                                      VirtualizingPanel.IsVirtualizing="False">
+                                <DataGrid.RowStyle>
+                                    <Style TargetType="DataGridRow">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsDone}" Value="True">
+                                                <Setter Property="Foreground" Value="#94A3B8"/>
+                                                <Setter Property="TextBlock.TextDecorations" Value="Strikethrough"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </DataGrid.RowStyle>
+
+                                <DataGrid.Columns>
+                                    <DataGridTemplateColumn Header="Приоритет" Width="90">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Border Background="{Binding NodeColor, Mode=OneTime}"
+                                                        CornerRadius="4" Padding="8,2"
+                                                        HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Priority}" Foreground="White"
+                                                               FontWeight="Bold" FontSize="12"/>
+                                                </Border>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+
+                                    <DataGridTextColumn Header="Задача" Binding="{Binding Title}" Width="*"/>
+                                    <DataGridTextColumn Header="Срок" Binding="{Binding DueDate}" Width="95"/>
+                                    <DataGridTextColumn Header="Статус" Binding="{Binding StatusLabel}" Width="90"/>
+                                </DataGrid.Columns>
+                            </DataGrid>
+
+                            <Border Grid.Row="2" Padding="12" Background="{DynamicResource AppBackgroundBrush}">
+                                <StackPanel>
+                                    <TextBlock Text="Изменить статус:" FontSize="11"
+                                               Foreground="{DynamicResource TextSecondaryBrush}"
+                                               Margin="0,0,0,6"/>
+                                    <WrapPanel>
+                                        <Button Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                Command="{Binding MarkPendingCommand}"
+                                                Margin="0,0,6,0" Padding="10,4">
+                                            <TextBlock Text="Ожидает" FontSize="11"/>
+                                        </Button>
+                                        <Button Style="{StaticResource MaterialDesignOutlinedButton}"
+                                                Command="{Binding MarkInProgressCommand}"
+                                                Margin="0,0,6,0" Padding="10,4">
+                                            <TextBlock Text="В работе" FontSize="11"/>
+                                        </Button>
+                                        <Button Style="{StaticResource MaterialDesignRaisedButton}"
+                                                Command="{Binding MarkDoneCommand}"
+                                                Padding="10,4">
+                                            <TextBlock Text="Выполнено" FontSize="11"/>
+                                        </Button>
+                                    </WrapPanel>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                    </materialDesign:Card>
+
+                    <!-- ============ ЦЕНТР: BST ============ -->
+                    <materialDesign:Card Grid.Column="2" Padding="0" UniformCornerRadius="12">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Border Grid.Row="0" Padding="16,12" Background="{DynamicResource AppBackgroundBrush}">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="FileTree" Width="18" Height="18"
+                                                              Foreground="{StaticResource PrimaryBrush}"
+                                                              VerticalAlignment="Center"/>
+                                    <TextBlock Text="BST (без балансировки)" Margin="8,0,0,0"
+                                               FontSize="14" FontWeight="SemiBold"
+                                               VerticalAlignment="Center"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <ScrollViewer Grid.Row="1"
+                                          HorizontalScrollBarVisibility="Auto"
+                                          VerticalScrollBarVisibility="Auto"
+                                          Background="Transparent">
+                                <Grid Width="{Binding BstCanvasWidth}"
+                                      Height="{Binding BstCanvasHeight}"
+                                      HorizontalAlignment="Left"
+                                      VerticalAlignment="Top"
+                                      Background="Transparent">
+
+                                    <!-- Слой 1: рёбра -->
+                                    <ItemsControl ItemsSource="{Binding BstEdges}" Width="{Binding BstCanvasWidth}" Height="{Binding BstCanvasHeight}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <Canvas/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Line X1="{Binding X1}" Y1="{Binding Y1}"
+                                                      X2="{Binding X2}" Y2="{Binding Y2}"
+                                                      Stroke="#94A3B8" StrokeThickness="1.5"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                    <!-- Слой 2: узлы -->
+                                    <ItemsControl ItemsSource="{Binding BstNodes}" Width="{Binding BstCanvasWidth}" Height="{Binding BstCanvasHeight}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <Canvas/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemContainerStyle>
+                                            <Style TargetType="ContentPresenter">
+                                                <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                                                <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                                            </Style>
+                                        </ItemsControl.ItemContainerStyle>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Width="40" Height="40">
+                                                    <Ellipse Fill="{Binding NodeColor}"
+                                                             Stroke="White" StrokeThickness="2"
+                                                             Width="40" Height="40"/>
+                                                    <TextBlock Text="{Binding PriorityText}"
+                                                               Foreground="White" FontWeight="Bold"
+                                                               FontSize="14"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Grid>
+                            </ScrollViewer>
+
+                            <TextBlock Grid.Row="1"
+                                       Text="Нет задач — добавьте кнопкой «+10»"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       FontStyle="Italic" Opacity="0.5">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding BstNodes.Count}" Value="0">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </materialDesign:Card>
+
+                    <!-- ============ ПРАВО: AVL ============ -->
+                    <materialDesign:Card Grid.Column="4" Padding="0" UniformCornerRadius="12">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <Border Grid.Row="0" Padding="16,12" Background="{DynamicResource AppBackgroundBrush}">
+                                <StackPanel Orientation="Horizontal">
+                                    <materialDesign:PackIcon Kind="FileTree" Width="18" Height="18"
+                                                              Foreground="{StaticResource SuccessBrush}"
+                                                              VerticalAlignment="Center"/>
+                                    <TextBlock Text="AVL (самобалансирующееся)" Margin="8,0,0,0"
+                                               FontSize="14" FontWeight="SemiBold"
+                                               VerticalAlignment="Center"
+                                               Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <ScrollViewer Grid.Row="1"
+                                          HorizontalScrollBarVisibility="Auto"
+                                          VerticalScrollBarVisibility="Auto"
+                                          Background="Transparent">
+                                <Grid Width="{Binding AvlCanvasWidth}"
+                                      Height="{Binding AvlCanvasHeight}"
+                                      HorizontalAlignment="Left"
+                                      VerticalAlignment="Top"
+                                      Background="Transparent">
+
+                                    <!-- Слой 1: рёбра -->
+                                    <ItemsControl ItemsSource="{Binding AvlEdges}" Width="{Binding AvlCanvasWidth}" Height="{Binding AvlCanvasHeight}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <Canvas/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Line X1="{Binding X1}" Y1="{Binding Y1}"
+                                                      X2="{Binding X2}" Y2="{Binding Y2}"
+                                                      Stroke="#94A3B8" StrokeThickness="1.5"/>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                    <!-- Слой 2: узлы -->
+                                    <ItemsControl ItemsSource="{Binding AvlNodes}" Width="{Binding AvlCanvasWidth}" Height="{Binding AvlCanvasHeight}">
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <Canvas/>
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                        <ItemsControl.ItemContainerStyle>
+                                            <Style TargetType="ContentPresenter">
+                                                <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                                                <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                                            </Style>
+                                        </ItemsControl.ItemContainerStyle>
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <Grid Width="40" Height="40">
+                                                    <Ellipse Fill="{Binding NodeColor}"
+                                                             Stroke="White" StrokeThickness="2"
+                                                             Width="40" Height="40"/>
+                                                    <TextBlock Text="{Binding PriorityText}"
+                                                               Foreground="White" FontWeight="Bold"
+                                                               FontSize="14"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"/>
+                                                </Grid>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </Grid>
+                            </ScrollViewer>
+
+                            <TextBlock Grid.Row="1"
+                                       Text="Нет задач — добавьте кнопкой «+10»"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"
+                                       Foreground="{DynamicResource TextSecondaryBrush}"
+                                       FontStyle="Italic" Opacity="0.5">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding AvlNodes.Count}" Value="0">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Grid>
+                    </materialDesign:Card>
+                </Grid>
+            </Grid>
+        </materialDesign:DialogHost>
+    </Grid>
+</UserControl>

@@ -104,6 +104,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;LABLOGIC_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -122,6 +123,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;LABLOGIC_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp17</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -133,17 +135,24 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AVLTree.cpp" />
     <ClCompile Include="BookList.cpp" />
     <ClCompile Include="BookListExports.cpp" />
-    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="BST.cpp" />
     <ClCompile Include="DoublyBookList.cpp" />
+    <ClCompile Include="lab02Exports.cpp" />
     <ClCompile Include="LoanList.cpp" />
     <ClCompile Include="ReaderList.cpp" />
+    <ClCompile Include="TaskTree.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AVLTree.h" />
     <ClInclude Include="BookList.h" />
+    <ClInclude Include="BST.h" />
     <ClInclude Include="LoanList.h" />
     <ClInclude Include="ReaderList.h" />
+    <ClInclude Include="Task.h" />
+    <ClInclude Include="TaskTree.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -6,8 +6,11 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Windows.Threading;
+using System.Windows;
 using MaterialDesignThemes.Wpf;
 using StructLab.Models.Lab01;
+using StructLab.Reading.ViewModels;
+using StructLab.Reading.Views;
 using StructLab.Services;
 
 namespace StructLab.ViewModels.Lab01
@@ -15,12 +18,11 @@ namespace StructLab.ViewModels.Lab01
 	public class Lab01ViewModel : ViewModelBase
 	{
 		// ============================================================
-		// ПАГИНАЦИЯ (книг)
+		// ПАГИНАЦИЯ
 		// ============================================================
 		private const int PageSize = 10;
 		private int _currentPage = 1;
 
-		// События для анимаций (view подписывается на них в code-behind)
 		public event EventHandler<PageChangedEventArgs> PageChanged;
 		public event EventHandler<BookAddedEventArgs> BookAdded;
 		public event EventHandler<BookDeletingEventArgs> BookDeleting;
@@ -53,10 +55,6 @@ namespace StructLab.ViewModels.Lab01
 			set => SetProperty(ref _isBusy, value);
 		}
 
-		/// <summary>
-		/// Заполненность полки: сколько экземпляров сейчас на полке
-		/// относительно исходного количества (текущие + выданные).
-		/// </summary>
 		public double ShelfFillPercentage
 		{
 			get
@@ -69,6 +67,8 @@ namespace StructLab.ViewModels.Lab01
 			}
 		}
 
+		// Прогресс-бар показывается только для больших баз и когда есть выдачи
+		public bool IsShelfProgressVisible => Books.Count >= 25 && ShelfFillPercentage < 100.0;
 
 		public ObservableCollection<Book> PagedBooks { get; } = new ObservableCollection<Book>();
 		public ObservableCollection<Book> Books { get; } = new ObservableCollection<Book>();
@@ -136,14 +136,15 @@ namespace StructLab.ViewModels.Lab01
 			}
 		}
 
-		public string OverdueCountInfo => $"Должников: {Loans.Count(l => l.IsOverdue)}";
+		public int OverdueCount => Loans.Count(l => l.IsOverdue);
+		public string OverdueCountInfo => $"Должников: {OverdueCount}";
 		public string TotalLoansInfo => $"Всего выдач: {Loans.Count}";
 
 		private Loan _selectedLoan;
 		public Loan SelectedLoan { get => _selectedLoan; set => SetProperty(ref _selectedLoan, value); }
 
 		// ============================================================
-		// ДИАЛОГИ: общие флаги
+		// ДИАЛОГИ
 		// ============================================================
 		private bool _isAddDialogOpen;
 		private bool _isRequestDialogOpen;
@@ -198,7 +199,8 @@ namespace StructLab.ViewModels.Lab01
 
 		public bool IsAnyDialogOpen
 		{
-			get => _isAddDialogOpen || _isRequestDialogOpen || _isMessageDialogOpen || _isAddReaderDialogOpen || _isIssueDialogOpen || _isBookDetailsDialogOpen;
+			get => _isAddDialogOpen || _isRequestDialogOpen || _isMessageDialogOpen ||
+				   _isAddReaderDialogOpen || _isIssueDialogOpen || _isBookDetailsDialogOpen;
 			set
 			{
 				if (!value)
@@ -214,7 +216,7 @@ namespace StructLab.ViewModels.Lab01
 		}
 
 		// ============================================================
-		// ДИАЛОГ: сообщение
+		// СООБЩЕНИЕ
 		// ============================================================
 		private string _messageTitle;
 		private string _messageText;
@@ -225,7 +227,7 @@ namespace StructLab.ViewModels.Lab01
 		public PackIconKind MessageIcon { get => _messageIcon; set => SetProperty(ref _messageIcon, value); }
 
 		// ============================================================
-		// ДИАЛОГ: добавление книги
+		// ДОБАВЛЕНИЕ КНИГИ
 		// ============================================================
 		private Book _newBook = new Book();
 		private string _newBookError;
@@ -237,7 +239,7 @@ namespace StructLab.ViewModels.Lab01
 		public string TargetTitleForInsert { get => _targetTitleForInsert; set => SetProperty(ref _targetTitleForInsert, value); }
 
 		// ============================================================
-		// ДИАЛОГ: заявка
+		// ЗАЯВКА
 		// ============================================================
 		private string _requestGenre;
 		private int _requestPages;
@@ -245,7 +247,7 @@ namespace StructLab.ViewModels.Lab01
 		public int RequestPages { get => _requestPages; set => SetProperty(ref _requestPages, value); }
 
 		// ============================================================
-		// ДИАЛОГ: добавление читателя
+		// ЧИТАТЕЛЬ
 		// ============================================================
 		private Reader _newReader = new Reader();
 		private string _newReaderError;
@@ -253,7 +255,7 @@ namespace StructLab.ViewModels.Lab01
 		public string NewReaderError { get => _newReaderError; set => SetProperty(ref _newReaderError, value); }
 
 		// ============================================================
-		// ДИАЛОГ: выдача
+		// ВЫДАЧА
 		// ============================================================
 		private Book _issueSelectedBook;
 		private Reader _issueSelectedReader;
@@ -287,13 +289,14 @@ namespace StructLab.ViewModels.Lab01
 		public RelayCommand CancelIssueCommand { get; }
 		public RelayCommand ReturnLoanCommand { get; }
 		public RelayCommand DeleteLoanCommand { get; }
+		public RelayCommand OpenLibraryCommand { get; }
 
 		// ============================================================
 		// КОНСТРУКТОР
 		// ============================================================
 		public Lab01ViewModel()
 		{
-			// --- 1. КНИГИ ---
+			// 1. Книги
 			_listHandle = NativeMethods.Lab01_CreateList(0);
 			if (!NativeMethods.Lab01_LoadFromFile(_listHandle, _dataFilePath))
 			{
@@ -302,7 +305,7 @@ namespace StructLab.ViewModels.Lab01
 			}
 			RefreshBooks();
 
-			// --- 2. ЧИТАТЕЛИ ---
+			// 2. Читатели
 			_readerListHandle = NativeMethods.Lab01_Reader_CreateList();
 			if (!NativeMethods.Lab01_Reader_LoadFromFile(_readerListHandle, _readerFilePath))
 			{
@@ -312,12 +315,12 @@ namespace StructLab.ViewModels.Lab01
 			}
 			RefreshReaders();
 
-			// --- 3. ВЫДАЧИ ---
+			// 3. Выдачи
 			_loanListHandle = NativeMethods.Lab01_Loan_CreateList();
 			NativeMethods.Lab01_Loan_LoadFromFile(_loanListHandle, _loanFilePath);
 			RefreshLoans();
 
-			// --- 4. КОМАНДЫ: книги ---
+			// 4. Команды книг
 			OpenAddDialogCommand = new RelayCommand(_ => OpenAddDialog(InsertMode.End));
 			ConfirmAddCommand = new RelayCommand(_ => ConfirmAdd(), _ => NewBook != null);
 			CancelAddCommand = new RelayCommand(_ => IsAddDialogOpen = false);
@@ -328,7 +331,7 @@ namespace StructLab.ViewModels.Lab01
 			ConfirmRequestCommand = new RelayCommand(_ => ConfirmRequest());
 			CancelRequestCommand = new RelayCommand(_ => IsRequestDialogOpen = false);
 
-			// --- 5. КОМАНДЫ: читатели ---
+			// 5. Команды читателей
 			OpenAddReaderDialogCommand = new RelayCommand(_ =>
 			{
 				NewReader = new Reader();
@@ -339,7 +342,7 @@ namespace StructLab.ViewModels.Lab01
 			CancelAddReaderCommand = new RelayCommand(_ => IsAddReaderDialogOpen = false);
 			DeleteSelectedReaderCommand = new RelayCommand(_ => DeleteSelectedReader(), _ => SelectedReader != null);
 
-			// --- 6. КОМАНДЫ: выдачи ---
+			// 6. Команды выдач
 			OpenIssueDialogCommand = new RelayCommand(_ =>
 			{
 				var availableBooks = Books.Where(b => b.Copies > 0).ToList();
@@ -367,7 +370,18 @@ namespace StructLab.ViewModels.Lab01
 			ReturnLoanCommand = new RelayCommand(_ => ReturnLoan(), _ => SelectedLoan != null && !SelectedLoan.IsReturned);
 			DeleteLoanCommand = new RelayCommand(_ => DeleteLoan(), _ => SelectedLoan != null);
 
-			// --- 7. ПАГИНАЦИЯ ---
+			// 7. Библиотека (читалка)
+			OpenLibraryCommand = new RelayCommand(_ =>
+			{
+				var window = new ReaderWindow
+				{
+					DataContext = new ReaderViewModel(),
+					Owner = Application.Current != null ? Application.Current.MainWindow : null
+				};
+				window.ShowDialog();
+			});
+
+			// 8. Пагинация
 			NextPageCommand = new RelayCommand(_ => CurrentPage++, _ => CurrentPage < TotalPages);
 			PrevPageCommand = new RelayCommand(_ => CurrentPage--, _ => CurrentPage > 1);
 		}
@@ -383,8 +397,6 @@ namespace StructLab.ViewModels.Lab01
 			for (int i = start; i < end; i++)
 				page.Add(Books[i]);
 
-			// Не Clear()+Add(), иначе DataGrid пересоздаёт строки и заново
-			// проигрывает entrance-анимацию при каждом обновлении.
 			Reconcile(PagedBooks, page, b => b.Id);
 		}
 
@@ -392,7 +404,8 @@ namespace StructLab.ViewModels.Lab01
 		/// Синхронизирует ObservableCollection со снапшотом по ключу:
 		/// сохраняет существующие объекты (и строки UI), добавляет/удаляет/переставляет.
 		/// </summary>
-		private static void Reconcile<T>(ObservableCollection<T> target, IList<T> source, Func<T, int> key, Action<T, T> update = null)
+		private static void Reconcile<T>(ObservableCollection<T> target, IList<T> source,
+			Func<T, int> key, Action<T, T> update = null)
 		{
 			var sourceKeys = new HashSet<int>(source.Select(key));
 
@@ -406,9 +419,10 @@ namespace StructLab.ViewModels.Lab01
 			for (int i = 0; i < source.Count; i++)
 			{
 				T desired = source[i];
-				if (byKey.TryGetValue(key(desired), out T current))
+				T current;
+				if (byKey.TryGetValue(key(desired), out current))
 				{
-					update?.Invoke(current, desired);
+					if (update != null) update(current, desired);
 					int currentIndex = target.IndexOf(current);
 					if (currentIndex != i) target.Move(currentIndex, i);
 				}
@@ -421,7 +435,7 @@ namespace StructLab.ViewModels.Lab01
 		}
 
 		// ============================================================
-		// КНИГИ: синхронизация
+		// КНИГИ: СИНХРОНИЗАЦИЯ
 		// ============================================================
 		private CBook ToCBook(Book b) => new CBook
 		{
@@ -436,12 +450,12 @@ namespace StructLab.ViewModels.Lab01
 
 		private void RefreshBooks()
 		{
-			// 1. Читаем снапшот из C++-списка.
 			var snapshot = new List<Book>();
 			int count = NativeMethods.Lab01_GetCount(_listHandle);
 			for (int i = 0; i < count; i++)
 			{
-				if (NativeMethods.Lab01_GetAt(_listHandle, i, out CBook cb))
+				CBook cb;
+				if (NativeMethods.Lab01_GetAt(_listHandle, i, out cb))
 				{
 					snapshot.Add(new Book
 					{
@@ -456,9 +470,6 @@ namespace StructLab.ViewModels.Lab01
 				}
 			}
 
-			// 2. Обновляем существующие объекты, а не пересоздаём их.
-			// Это сохраняет строки DataGrid и не запускает entrance-анимацию
-			// при выдаче/возврате/смене типа списка.
 			Reconcile(Books, snapshot, b => b.Id, (target, src) => target.CopyFrom(src));
 
 			_nextBookId = Books.Count > 0 ? Books.Max(b => b.Id) + 1 : 1;
@@ -472,9 +483,9 @@ namespace StructLab.ViewModels.Lab01
 			OnPropertyChanged(nameof(PageInfo));
 			OnPropertyChanged(nameof(TotalBooksInfo));
 			OnPropertyChanged(nameof(ShelfFillPercentage));
+			OnPropertyChanged(nameof(IsShelfProgressVisible));
 			CommandManager.InvalidateRequerySuggested();
 
-			// Обновим Loans, чтобы подтянуть актуальные названия книг
 			if (_loanListHandle != IntPtr.Zero) RefreshLoans();
 		}
 
@@ -487,13 +498,10 @@ namespace StructLab.ViewModels.Lab01
 			if (_isSwitchingList) return;
 			_isSwitchingList = true;
 
-			// Запоминаем UI-диспетчер: после await продолжение может прийти
-			// из пула потоков, а менять ObservableCollection можно только в UI-потоке.
 			Dispatcher dispatcher = Dispatcher.CurrentDispatcher;
 
 			try
 			{
-				// Даём UI-потоку отрисовать индикатор «мячик».
 				IsBusy = true;
 				await Task.Delay(140).ConfigureAwait(false);
 
@@ -563,7 +571,7 @@ namespace StructLab.ViewModels.Lab01
 			_currentInsertMode = mode;
 			NewBook = new Book { Year = 2024, Pages = 300, Copies = 1 };
 			NewBookError = null;
-			TargetTitleForInsert = SelectedBook?.Title ?? "";
+			TargetTitleForInsert = SelectedBook != null ? SelectedBook.Title : "";
 			IsAddDialogOpen = true;
 		}
 
@@ -596,8 +604,6 @@ namespace StructLab.ViewModels.Lab01
 			RefreshBooks();
 			SaveData();
 
-			// Показываем страницу, на которой оказалась новая книга
-			// (для AddBefore/AddAfter/AddSorted это не обязательно последняя).
 			var added = Books.FirstOrDefault(b => b.Id == NewBook.Id);
 			if (added != null)
 			{
@@ -639,7 +645,6 @@ namespace StructLab.ViewModels.Lab01
 			{
 				Book book = SelectedBook;
 
-				// Даём view проиграть анимацию схлопывания строки.
 				var handler = BookDeleting;
 				if (handler != null)
 				{
@@ -700,7 +705,8 @@ namespace StructLab.ViewModels.Lab01
 
 			if (index >= 0)
 			{
-				NativeMethods.Lab01_GetAt(_listHandle, index, out CBook foundBook);
+				CBook foundBook;
+				NativeMethods.Lab01_GetAt(_listHandle, index, out foundBook);
 				NativeMethods.Lab01_DeleteByTitle(_listHandle, foundBook.Title);
 				RefreshBooks();
 				SaveData();
@@ -757,7 +763,8 @@ namespace StructLab.ViewModels.Lab01
 			int count = NativeMethods.Lab01_Reader_GetCount(_readerListHandle);
 			for (int i = 0; i < count; i++)
 			{
-				if (NativeMethods.Lab01_Reader_GetAt(_readerListHandle, i, out CReader cr))
+				CReader cr;
+				if (NativeMethods.Lab01_Reader_GetAt(_readerListHandle, i, out cr))
 				{
 					snapshot.Add(new Reader
 					{
@@ -773,7 +780,6 @@ namespace StructLab.ViewModels.Lab01
 			Reconcile(Readers, snapshot, r => r.Id, (target, src) => target.CopyFrom(src));
 			_nextReaderId = Readers.Count > 0 ? Readers.Max(r => r.Id) + 1 : 1;
 
-			// Обновим Loans — вдруг читатель был удалён
 			if (_loanListHandle != IntPtr.Zero) RefreshLoans();
 		}
 
@@ -825,7 +831,8 @@ namespace StructLab.ViewModels.Lab01
 			int count = NativeMethods.Lab01_Loan_GetCount(_loanListHandle);
 			for (int i = 0; i < count; i++)
 			{
-				if (NativeMethods.Lab01_Loan_GetAt(_loanListHandle, i, out CLoan cl))
+				CLoan cl;
+				if (NativeMethods.Lab01_Loan_GetAt(_loanListHandle, i, out cl))
 				{
 					var book = Books.FirstOrDefault(b => b.Id == cl.BookId);
 					var reader = Readers.FirstOrDefault(r => r.Id == cl.ReaderId);
@@ -838,8 +845,8 @@ namespace StructLab.ViewModels.Lab01
 						IssueDate = cl.IssueDate,
 						DueDate = cl.DueDate,
 						ReturnDate = cl.ReturnDate,
-						BookTitle = book?.Title ?? $"<книга #{cl.BookId} удалена>",
-						ReaderName = reader?.FullName ?? $"<читатель #{cl.ReaderId} удалён>"
+						BookTitle = book != null ? book.Title : $"<книга #{cl.BookId} удалена>",
+						ReaderName = reader != null ? reader.FullName : $"<читатель #{cl.ReaderId} удалён>"
 					});
 				}
 			}
@@ -847,15 +854,15 @@ namespace StructLab.ViewModels.Lab01
 			Reconcile(Loans, snapshot, l => l.Id, (target, src) => target.CopyFrom(src));
 			_nextLoanId = Loans.Count > 0 ? Loans.Max(l => l.Id) + 1 : 1;
 			UpdateFilteredLoans();
+			OnPropertyChanged(nameof(OverdueCount));
 			OnPropertyChanged(nameof(OverdueCountInfo));
 			OnPropertyChanged(nameof(TotalLoansInfo));
 			OnPropertyChanged(nameof(ShelfFillPercentage));
+			OnPropertyChanged(nameof(IsShelfProgressVisible));
 		}
 
 		private void UpdateFilteredLoans()
 		{
-			// При включённом фильтре должники идут первыми —
-			// по возрастанию срока возврата (самые просроченные сверху).
 			IEnumerable<Loan> query = _showOnlyOverdue
 				? (IEnumerable<Loan>)Loans.Where(l => l.IsOverdue).OrderBy(l => l.DueDate, StringComparer.Ordinal)
 				: Loans;
@@ -934,7 +941,6 @@ namespace StructLab.ViewModels.Lab01
 		{
 			if (SelectedLoan == null) return;
 
-			// Если книга ещё не возвращена — вернём экземпляр на полку
 			if (!SelectedLoan.IsReturned)
 			{
 				NativeMethods.Lab01_AdjustCopies(_listHandle, SelectedLoan.BookId, +1);

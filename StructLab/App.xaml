@@ -18,6 +18,7 @@
 
             <!-- Наши конвертеры -->
             <converters:NullOrEmptyToVisibilityConverter x:Key="NullToVisibilityConverter"/>
+            <converters:GreaterThanZeroConverter x:Key="GreaterThanZeroConverter"/>
             <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
         </ResourceDictionary>
