@@ -127,6 +127,13 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.IO.Compression" />
+    <Reference Include="System.IO.Compression.FileSystem" />
+    <Reference Include="VersOne.Epub">
+      <HintPath>..\packages\VersOne.Epub.3.3.6\lib\net46\VersOne.Epub.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -138,7 +145,11 @@
     <Compile Include="Controls\AnimatedNumberTextBlock.cs" />
     <Compile Include="Converters\GreaterThanZeroConverter.cs" />
     <Compile Include="Converters\NullOrEmptyToVisibilityConverter.cs" />
+    <Compile Include="Models\Dialogs\ConfirmDialogModel.cs" />
+    <Compile Include="Models\Dialogs\MessageDialogModel.cs" />
+    <Compile Include="Models\Lab02\PersistedTask.cs" />
     <Compile Include="Models\Lab02\TaskItem.cs" />
+    <Compile Include="Models\Lab02\TaskTemplatePool.cs" />
     <Compile Include="Models\Lab02\TreeEdgeView.cs" />
     <Compile Include="Models\Lab02\TreeNodeView.cs" />
     <Compile Include="Models\ObservableModel.cs" />
@@ -147,6 +158,7 @@
     <Compile Include="Models\Lab01\Reader.cs" />
     <Compile Include="Models\LabInfo.cs" />
     <Compile Include="Reading\Helpers\FlowDocumentConverter.cs" />
+    <Compile Include="Reading\Helpers\HtmlTextConverter.cs" />
     <Compile Include="Reading\Helpers\JsonFileStore.cs" />
     <Compile Include="Reading\Helpers\ReadingPaths.cs" />
     <Compile Include="Reading\Models\Book.cs" />
@@ -154,8 +166,11 @@
     <Compile Include="Reading\Models\BookMetadata.cs" />
     <Compile Include="Reading\Models\BookSearchResult.cs" />
     <Compile Include="Reading\Models\Chapter.cs" />
+    <Compile Include="Reading\Models\EpubLibraryEntry.cs" />
     <Compile Include="Reading\Models\ReadingSettings.cs" />
     <Compile Include="Reading\Services\CategoryCache.cs" />
+    <Compile Include="Reading\Services\EpubLibraryStore.cs" />
+    <Compile Include="Reading\Services\EpubProvider.cs" />
     <Compile Include="Reading\Services\FileBookCache.cs" />
     <Compile Include="Reading\Services\IBookCache.cs" />
     <Compile Include="Reading\Services\IBookSourceProvider.cs" />
@@ -168,7 +183,10 @@
     <Compile Include="Reading\Views\ReaderWindow.xaml.cs">
       <DependentUpon>ReaderWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Services\DialogService.cs" />
     <Compile Include="Services\NativeMethods.cs" />
+    <Compile Include="Services\NotificationService.cs" />
+    <Compile Include="Services\ToastService.cs" />
     <Compile Include="ViewModels\Lab01\Lab01Events.cs" />
     <Compile Include="ViewModels\Lab01\Lab01ViewModel.cs" />
     <Compile Include="ViewModels\Lab02\Lab02ViewModel.cs" />
@@ -176,6 +194,12 @@
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\RelayCommand.cs" />
     <Compile Include="ViewModels\ViewModelBase.cs" />
+    <Compile Include="Views\Dialogs\ConfirmDialog.xaml.cs">
+      <DependentUpon>ConfirmDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Dialogs\MessageDialog.xaml.cs">
+      <DependentUpon>MessageDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\HomeView.xaml.cs">
       <DependentUpon>HomeView.xaml</DependentUpon>
     </Compile>
@@ -187,6 +211,9 @@
     </Compile>
     <Compile Include="Views\Lab02\Lab02View.xaml.cs">
       <DependentUpon>Lab02View.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ToastWindow.xaml.cs">
+      <DependentUpon>ToastWindow.xaml</DependentUpon>
     </Compile>
     <Page Include="Animations\Lab01\DataGridAnimations.xaml">
       <SubType>Designer</SubType>
@@ -220,6 +247,18 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Dialogs\ConfirmDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Dialogs\MessageDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DialogTemplates.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\HomeView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -229,6 +268,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Lab02\Lab02View.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ToastWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

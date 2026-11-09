@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using StructLab.Reading.Models;
+using StructLab.Reading.Helpers;
 
 namespace StructLab.Reading.Services
 {
@@ -662,85 +663,7 @@ namespace StructLab.Reading.Services
 		// ЧИСТКА HTML → plain text
 		// ============================================================
 		private static string HtmlToPlainText(string html)
-		{
-			if (string.IsNullOrEmpty(html)) return "";
-
-			// 1. Отсечь всё до mw-parser-output
-			var parserMatch = Regex.Match(html,
-				@"<div class=""mw-parser-output"">(.*?)(?:<div class=""printfooter""|<div id=""catlinks""|<div class=""catlinks""|$)",
-				RegexOptions.Singleline | RegexOptions.IgnoreCase);
-			if (parserMatch.Success && parserMatch.Groups[1].Value.Length > 100)
-				html = parserMatch.Groups[1].Value;
-
-			// 2. Скрипты, стили, комментарии
-			html = Regex.Replace(html, "<(script|style)[^>]*>.*?</\\1>",
-				"", RegexOptions.Singleline | RegexOptions.IgnoreCase);
-			html = Regex.Replace(html, "<!--.*?-->", "", RegexOptions.Singleline);
-
-			// 3. Сноски [1]
-			html = Regex.Replace(html,
-				"<sup[^>]*class=\"[^\"]*reference[^\"]*\"[^>]*>.*?</sup>",
-				"", RegexOptions.Singleline | RegexOptions.IgnoreCase);
-
-			// 4. Кнопки [править]
-			html = Regex.Replace(html,
-				"<span[^>]*class=\"[^\"]*mw-editsection[^\"]*\"[^>]*>.*?</span>",
-				"", RegexOptions.Singleline | RegexOptions.IgnoreCase);
-
-			// 5. Служебные блоки
-			var serviceClasses = new[]
-			{
-				"noprint", "ws-noexport", "sistersitebox", "catlinks",
-				"mw-references-wrap", "reflist", "printfooter", "mw-jump-link",
-				"mw-indicators", "toc", "ws-header", "navbox", "vertical-navbox",
-				"metadata", "mw-empty-elt", "hatnote", "ambox", "mbox",
-				"redirectMsg", "mw-hidden-catlinks", "mw-normal-catlinks"
-			};
-			foreach (var cls in serviceClasses)
-			{
-				var escaped = Regex.Escape(cls);
-				html = Regex.Replace(html,
-					$@"<div[^>]*class=""[^""]*\b{escaped}\b[^""]*""[^>]*>.*?</div>",
-					"", RegexOptions.Singleline | RegexOptions.IgnoreCase);
-				html = Regex.Replace(html,
-					$@"<div[^>]*id=""{escaped}""[^>]*>.*?</div>",
-					"", RegexOptions.Singleline | RegexOptions.IgnoreCase);
-			}
-
-			// 6. Таблицы
-			html = Regex.Replace(html, "<table[^>]*>.*?</table>",
-				"", RegexOptions.Singleline | RegexOptions.IgnoreCase);
-
-			// 7. Списки сносок
-			html = Regex.Replace(html,
-				"<ol[^>]*class=\"[^\"]*references[^\"]*\"[^>]*>.*?</ol>",
-				"", RegexOptions.Singleline | RegexOptions.IgnoreCase);
-
-			// 8. Блочные теги → перенос
-			html = Regex.Replace(html, "</p>|</div>|</h[1-6]>|</li>|<br\\s*/?>",
-				"\n\n", RegexOptions.IgnoreCase);
-
-			// 9. Оставшиеся теги
-			html = Regex.Replace(html, "<[^>]+>", "");
-
-			// 10. Entities
-			html = System.Net.WebUtility.HtmlDecode(html);
-
-			// 11. Текстовые хвосты
-			html = Regex.Replace(html, @"\[\s*(?:править|ред\.|edit|править\s+код)\s*\]", "", RegexOptions.IgnoreCase);
-			html = Regex.Replace(html, @"\[\d+\]", "");
-			html = Regex.Replace(html, @"[↗↑↓←→]", "");
-			html = Regex.Replace(html, @"Страница:\s*[^\n]*?\.(?:pdf|djvu)/\d+", "", RegexOptions.IgnoreCase);
-			html = Regex.Replace(html, @"\[источник не указан[^\]]*\]", "", RegexOptions.IgnoreCase);
-
-			// 12. Пробелы
-			html = Regex.Replace(html, @"[ \t]+", " ");
-			html = Regex.Replace(html, @" *\n *", "\n");
-			html = Regex.Replace(html, @"\n{3,}", "\n\n");
-			html = html.Trim();
-
-			return html;
-		}
+			=> HtmlTextConverter.ToPlainText(html, true);
 
 		// ============================================================
 		// RETRY при 429

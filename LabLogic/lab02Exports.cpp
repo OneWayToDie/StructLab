@@ -1,4 +1,4 @@
-#include "TaskTree.h"
+﻿#include "TaskTree.h"
 #include <cstring>
 #include <string>
 
@@ -11,11 +11,14 @@ struct CTask {
     char description[500];
     int priority;
     char dueDate[20];
+    char dueTime[10];   // ← НОВОЕ
     int status;
+    int isManual;
 };
 
 struct CSnapshotNode {
-    int priority;
+    int key;         // ID задачи
+    int priority;    // приоритет (для цвета)
     int parentIndex;
     int isLeft;
 };
@@ -31,12 +34,14 @@ void ConvertToC(const Task& t, CTask& ct) {
     CopyStr(ct.description, sizeof(ct.description), t.description);
     ct.priority = t.priority;
     CopyStr(ct.dueDate, sizeof(ct.dueDate), t.dueDate);
+    CopyStr(ct.dueTime, sizeof(ct.dueTime), t.dueTime);   // ← НОВОЕ
     ct.status = (int)t.status;
+    ct.isManual = t.isManual ? 1 : 0;
 }
 
 extern "C" {
 
-    // ---------- ���������� ----------
+    // ---------- УПРАВЛЕНИЕ ----------
     __declspec(dllexport) void* Lab02_Create() {
         return new TaskTree();
     }
@@ -49,13 +54,40 @@ extern "C" {
         if (ptr) static_cast<TaskTree*>(ptr)->Clear();
     }
 
-    // ---------- �������� ----------
+    // ---------- ОПЕРАЦИИ ----------
     __declspec(dllexport) int Lab02_AddTask(void* ptr, const char* title,
         const char* description,
-        int priority, const char* dueDate)
+        int priority, const char* dueDate,
+        const char* dueTime, int sequential)
     {
         if (!ptr) return -1;
-        return static_cast<TaskTree*>(ptr)->AddTask(title, description, priority, dueDate);
+        return static_cast<TaskTree*>(ptr)->AddTask(
+            title, description, priority, dueDate, dueTime ? dueTime : "",
+            sequential != 0, /*isManual:*/ false);
+    }
+
+    __declspec(dllexport) bool Lab02_AddTaskWithId(void* ptr, int id,
+        const char* title,
+        const char* description,
+        int priority, const char* dueDate,
+        const char* dueTime,
+        int status, int isManual)
+    {
+        if (!ptr) return false;
+        return static_cast<TaskTree*>(ptr)->AddTaskWithId(
+            id, title, description, priority, dueDate, dueTime ? dueTime : "",
+            (TaskStatus)status, isManual != 0);
+    }
+
+    __declspec(dllexport) int Lab02_AddManualTask(void* ptr, const char* title,
+        const char* description,
+        int priority, const char* dueDate,
+        const char* dueTime)
+    {
+        if (!ptr) return -1;
+        return static_cast<TaskTree*>(ptr)->AddTask(
+            title, description, priority, dueDate, dueTime ? dueTime : "",
+            false, /*isManual:*/ true);
     }
 
     __declspec(dllexport) bool Lab02_DeleteTask(void* ptr, int taskId) {
@@ -66,7 +98,7 @@ extern "C" {
         return ptr ? static_cast<TaskTree*>(ptr)->SetStatus(taskId, (TaskStatus)status) : false;
     }
 
-    // ---------- ������ ----------
+    // ---------- ЧТЕНИЕ ----------
     __declspec(dllexport) bool Lab02_GetTask(void* ptr, int taskId, CTask* out) {
         if (!ptr) return false;
         Task t;
@@ -117,13 +149,14 @@ extern "C" {
         return m;
     }
 
-    // ---------- ������ ----------
+    // ---------- ДЕРЕВО ----------
     __declspec(dllexport) int Lab02_GetSnapshot(void* ptr, CSnapshotNode* buffer, int maxSize) {
         if (!ptr) return 0;
         auto snap = static_cast<TaskTree*>(ptr)->GetSnapshot();
         int n = (int)snap.size();
         if (n > maxSize) n = maxSize;
         for (int i = 0; i < n; i++) {
+            buffer[i].key = snap[i].key;
             buffer[i].priority = snap[i].priority;
             buffer[i].parentIndex = snap[i].parentIndex;
             buffer[i].isLeft = snap[i].isLeft;

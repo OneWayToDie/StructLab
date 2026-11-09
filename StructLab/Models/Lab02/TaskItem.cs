@@ -17,10 +17,43 @@ namespace StructLab.Models.Lab02
 		private int _priority;
 		private string _dueDate;
 		private TaskStatus _status;
+		private bool _isManual;
+		
 
 		public int Id { get => _id; set => SetProperty(ref _id, value); }
 		public string Title { get => _title; set => SetProperty(ref _title, value); }
 		public string Description { get => _description; set => SetProperty(ref _description, value); }
+		public bool IsManual { get => _isManual; set => SetProperty(ref _isManual, value); }
+		public string DueDate
+		{
+			get => _dueDate;
+			set
+			{
+				if (SetProperty(ref _dueDate, value))
+					OnPropertyChanged(nameof(DueDisplay));
+			}
+		}
+
+		private string _dueTime;
+		public string DueTime
+		{
+			get => _dueTime;
+			set
+			{
+				if (SetProperty(ref _dueTime, value))
+					OnPropertyChanged(nameof(DueDisplay));
+			}
+		}
+		// Отображение срока: "2026-11-15 14:30" или "2026-11-15".
+		public string DueDisplay
+		{
+			get
+			{
+				if (string.IsNullOrWhiteSpace(_dueDate)) return "";
+				if (string.IsNullOrWhiteSpace(_dueTime)) return _dueDate;
+				return _dueDate + " " + _dueTime;
+			}
+		}
 		public int Priority
 		{
 			get => _priority;
@@ -33,7 +66,6 @@ namespace StructLab.Models.Lab02
 				}
 			}
 		}
-		public string DueDate { get => _dueDate; set => SetProperty(ref _dueDate, value); }
 		public TaskStatus Status
 		{
 			get => _status;
@@ -103,7 +135,9 @@ namespace StructLab.Models.Lab02
 			Description = other.Description;
 			Priority = other.Priority;
 			DueDate = other.DueDate;
+			DueTime = other.DueTime;
 			Status = other.Status;
+			IsManual = other.IsManual;
 		}
 	}
 }

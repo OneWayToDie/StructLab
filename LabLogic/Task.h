@@ -13,8 +13,10 @@ namespace Lab02 {
         int id;
         std::string title;
         std::string description;
-        int priority;             // 1..10, чем больше — тем важнее
-        std::string dueDate;      // "yyyy-MM-dd" или пусто
+        int priority;
+        std::string dueDate;
+        std::string dueTime;   // "HH:mm", пусто = весь день
         TaskStatus status;
+        bool isManual;
     };
 }

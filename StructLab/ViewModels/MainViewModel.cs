@@ -161,5 +161,66 @@ namespace StructLab.ViewModels
 				r["TextSecondaryBrush"] = new SolidColorBrush(Color.FromRgb(0x64, 0x74, 0x8B));
 			}
 		}
+
+		public bool NotificationsEnabled
+		{
+			get => Properties.Settings.Default.EnableNotifications;
+			set
+			{
+				if (value == Properties.Settings.Default.EnableNotifications) return;
+				Properties.Settings.Default.EnableNotifications = value;
+				Properties.Settings.Default.Save();
+				OnPropertyChanged();
+			}
+		}
+
+		public bool EnableNotifyBefore
+		{
+			get => Properties.Settings.Default.EnableNotifyBefore;
+			set
+			{
+				if (value == Properties.Settings.Default.EnableNotifyBefore) return;
+				Properties.Settings.Default.EnableNotifyBefore = value;
+				Properties.Settings.Default.Save();
+				OnPropertyChanged();
+			}
+		}
+
+		public bool EnableNotifyAtTime
+		{
+			get => Properties.Settings.Default.EnableNotifyAtTime;
+			set
+			{
+				if (value == Properties.Settings.Default.EnableNotifyAtTime) return;
+				Properties.Settings.Default.EnableNotifyAtTime = value;
+				Properties.Settings.Default.Save();
+				OnPropertyChanged();
+			}
+		}
+
+		public int NotifyBeforeMinutes
+		{
+			get => Properties.Settings.Default.NotifyBeforeMinutes;
+			set
+			{
+				int v = Math.Max(1, Math.Min(120, value));
+				if (v == Properties.Settings.Default.NotifyBeforeMinutes) return;
+				Properties.Settings.Default.NotifyBeforeMinutes = v;
+				Properties.Settings.Default.Save();
+				OnPropertyChanged();
+			}
+		}
+
+		public bool NotificationsSound
+		{
+			get => Properties.Settings.Default.EnableNotificationSound;
+			set
+			{
+				if (value == Properties.Settings.Default.EnableNotificationSound) return;
+				Properties.Settings.Default.EnableNotificationSound = value;
+				Properties.Settings.Default.Save();
+				OnPropertyChanged();
+			}
+		}
 	}
 }

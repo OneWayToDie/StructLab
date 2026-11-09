@@ -44,13 +44,16 @@ namespace StructLab.Services
 		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 500)] public string Description;
 		public int Priority;
 		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 20)] public string DueDate;
+		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 10)] public string DueTime;   // ← НОВОЕ
 		public int Status;
+		public int IsManual;
 	}
 
 	[StructLayout(LayoutKind.Sequential, Pack = 1)]
 	public struct CSnapshotNode
 	{
-		public int Priority;
+		public int Key;         // ID задачи
+		public int Priority;    // для цвета/подписи
 		public int ParentIndex;
 		public int IsLeft;
 	}
@@ -58,8 +61,6 @@ namespace StructLab.Services
 	internal static class NativeMethods
 	{
 		private const string DllName = "LabLogic.dll";
-
-		// ИЗМЕНЕНО: добавлен параметр isDoubly
 		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern IntPtr Lab01_CreateList(int isDoubly);
 		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern void Lab01_DestroyList(IntPtr listPtr);
 		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern void Lab01_Clear(IntPtr listPtr);
@@ -99,7 +100,7 @@ namespace StructLab.Services
 		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern IntPtr Lab02_Create();
 		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern void Lab02_Destroy(IntPtr ptr);
 		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern void Lab02_Clear(IntPtr ptr);
-		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern int Lab02_AddTask(IntPtr ptr, string title, string description, int priority, string dueDate);
+		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern int Lab02_AddTask(IntPtr ptr, string title, string description, int priority, string dueDate, string dueTime, int sequential);
 		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern bool Lab02_DeleteTask(IntPtr ptr, int taskId);
 		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern bool Lab02_SetStatus(IntPtr ptr, int taskId, int status);
 		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern bool Lab02_GetTask(IntPtr ptr, int taskId, out CTask outTask);
@@ -112,5 +113,8 @@ namespace StructLab.Services
 		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern int Lab02_GetIndexNodeCount(IntPtr ptr);
 		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern bool Lab02_IsAvl(IntPtr ptr);
 		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern void Lab02_SetUseAvl(IntPtr ptr, bool value);
+		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern int Lab02_AddTask(IntPtr ptr, string title, string description, int priority, string dueDate, int sequential);
+		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern bool Lab02_AddTaskWithId(IntPtr ptr, int id, string title, string description, int priority, string dueDate, string dueTime, int status, int isManual);
+		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern int Lab02_AddManualTask(IntPtr ptr, string title, string description, int priority, string dueDate, string dueTime);
 	}
 }

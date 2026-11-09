@@ -31,8 +31,19 @@
                             <TextBlock Text="Читалка" Foreground="White" FontSize="22" FontWeight="Bold"
                                        Margin="10,0,0,0" VerticalAlignment="Center"/>
                         </StackPanel>
-                        <TextBlock Text="Классика из Викитеки"
+                        <TextBlock Text="Викитека и EPUB"
                                    Foreground="#94A3B8" FontSize="11" Margin="0,4,0,0"/>
+                        <Button Command="{Binding LoadEpubCommand}"
+                                Style="{StaticResource MaterialDesignOutlinedButton}"
+                                Foreground="White" BorderBrush="White"
+                                HorizontalAlignment="Left"
+                                Margin="0,12,0,0"
+                                ToolTip="Открыть локальный файл .epub">
+                            <StackPanel Orientation="Horizontal">
+                                <materialDesign:PackIcon Kind="FileUploadOutline" VerticalAlignment="Center"/>
+                                <TextBlock Text="Загрузить EPUB" Margin="6,0,0,0"/>
+                            </StackPanel>
+                        </Button>
                     </StackPanel>
                 </Border>
 
@@ -97,6 +108,76 @@
                                 <TextBlock Text="К поиску" Margin="6,0,0,0"/>
                             </StackPanel>
                         </Button>
+                    </StackPanel>
+                </Border>
+
+                <!-- Мои книги (EPUB) -->
+                <Border DockPanel.Dock="Bottom" Padding="16,10,16,14"
+                        BorderBrush="#1F2937" BorderThickness="0,1,0,0"
+                        Visibility="{Binding IsSearchMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                    <StackPanel>
+                        <TextBlock Text="Мои книги (EPUB)"
+                                   Foreground="#94A3B8" FontSize="11" FontWeight="SemiBold"
+                                   Margin="0,0,0,6"/>
+                        <TextBlock Text="Пока нет загруженных книг"
+                                   Foreground="#64748B" FontSize="11" FontStyle="Italic"
+                                   Visibility="{Binding HasNoEpubBooks, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                        <ListBox ItemsSource="{Binding EpubBooks}"
+                                 MaxHeight="200"
+                                 Background="Transparent" BorderThickness="0"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 Padding="0"
+                                 Visibility="{Binding HasEpubBooks, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Padding" Value="8,6"/>
+                                    <Setter Property="Margin" Value="0,2"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border x:Name="b" Background="Transparent" CornerRadius="6"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="b" Property="Background" Value="{StaticResource SidebarHoverBrush}"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Title}" Foreground="White"
+                                                       FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                            <TextBlock Text="{Binding Subtitle}" Foreground="#94A3B8"
+                                                       FontSize="11" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                        </StackPanel>
+                                        <Button Grid.Column="1"
+                                                Command="{Binding DataContext.OpenEpubCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource MaterialDesignIconButton}"
+                                                ToolTip="Открыть книгу"
+                                                Width="32" Height="32"
+                                                Margin="6,0,0,0"
+                                                VerticalAlignment="Center">
+                                            <materialDesign:PackIcon Kind="BookOpenPageVariant"
+                                                                      Width="18" Height="18"
+                                                                      Foreground="White"/>
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
                     </StackPanel>
                 </Border>
 
@@ -318,7 +399,7 @@
                     <materialDesign:PackIcon Kind="BookOpenPageVariant" Width="80" Height="80"
                                               Foreground="{DynamicResource TextSecondaryBrush}"
                                               HorizontalAlignment="Center" Opacity="0.5"/>
-                    <TextBlock Text="Выберите книгу из результатов слева"
+                    <TextBlock Text="Выберите книгу из результатов слева или загрузите EPUB"
                                FontSize="16" Margin="0,16,0,0"
                                Foreground="{DynamicResource TextSecondaryBrush}"
                                HorizontalAlignment="Center"/>

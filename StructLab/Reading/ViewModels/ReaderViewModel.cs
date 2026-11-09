@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Win32;
 using StructLab.Reading.Models;
 using StructLab.Reading.Services;
 using StructLab.ViewModels;
@@ -13,6 +16,8 @@ namespace StructLab.Reading.ViewModels
 	{
 		private readonly ReadingService _service;
 		private readonly ReadingSettings _settings;
+		private readonly EpubProvider _epubProvider;
+		private readonly EpubLibraryStore _epubLibrary;
 		private CancellationTokenSource _currentOp;
 
 		private string _searchQuery = "";
@@ -27,6 +32,12 @@ namespace StructLab.Reading.ViewModels
 		private int _chapterIndex = -1;
 
 		public ObservableCollection<BookSearchResult> SearchResults { get; } = new ObservableCollection<BookSearchResult>();
+
+		/// <summary>История загруженных EPUB-книг (свежие сверху).</summary>
+		public ObservableCollection<EpubLibraryEntry> EpubBooks { get; } = new ObservableCollection<EpubLibraryEntry>();
+
+		public bool HasEpubBooks => EpubBooks.Count > 0;
+		public bool HasNoEpubBooks => EpubBooks.Count == 0;
 
 		public string SearchQuery
 		{
@@ -247,6 +258,8 @@ namespace StructLab.Reading.ViewModels
 		public RelayCommand NextChapterCommand { get; }
 		public RelayCommand ShowSearchCommand { get; }
 		public RelayCommand ShowTocCommand { get; }
+		public RelayCommand LoadEpubCommand { get; }
+		public RelayCommand OpenEpubCommand { get; }
 
 		public ReaderViewModel()
 		{
@@ -254,6 +267,10 @@ namespace StructLab.Reading.ViewModels
 			var provider = new WikisourceProvider();
 			var cache = new FileBookCache();
 			_service = new ReadingService(provider, cache);
+			_epubProvider = new EpubProvider();
+			_epubLibrary = new EpubLibraryStore();
+
+			RefreshEpubBooks();
 
 			SearchCommand = new RelayCommand(
 				_ => _ = SearchAsync(),
@@ -280,6 +297,17 @@ namespace StructLab.Reading.ViewModels
 			ShowTocCommand = new RelayCommand(
 				_ => IsSearchMode = false,
 				_ => HasBook);
+
+			LoadEpubCommand = new RelayCommand(
+				_ => _ = LoadEpubFromDialogAsync(),
+				_ => !IsLoadingBook);
+
+			OpenEpubCommand = new RelayCommand(
+				parameter =>
+				{
+					var entry = parameter as EpubLibraryEntry;
+					if (entry != null) _ = OpenEpubEntryAsync(entry);
+				});
 		}
 
 		/// <summary>Из карточки книги: подставить «Автор Название» и сразу искать.</summary>
@@ -294,6 +322,161 @@ namespace StructLab.Reading.ViewModels
 			// Сбрасываем выбор, чтобы по тому же результату можно было кликнуть ещё раз.
 			SelectedResult = null;
 			IsSearchMode = true;
+		}
+
+		// ============================================================
+		// EPUB
+		// ============================================================
+
+		/// <summary>Перечитывает историю EPUB и показывает свежие книги сверху.</summary>
+		private void RefreshEpubBooks()
+		{
+			EpubBooks.Clear();
+
+			foreach (var entry in _epubLibrary.Entries
+				.OrderByDescending(e => e.LastOpenedAt)
+				.ToList())
+			{
+				EpubBooks.Add(entry);
+			}
+
+			OnPropertyChanged(nameof(HasEpubBooks));
+			OnPropertyChanged(nameof(HasNoEpubBooks));
+		}
+
+		private async Task LoadEpubFromDialogAsync()
+		{
+			var dialog = new OpenFileDialog
+			{
+				Title = "Открыть книгу EPUB",
+				Filter = "EPUB (*.epub)|*.epub|Все файлы (*.*)|*.*",
+				CheckFileExists = true,
+				Multiselect = false
+			};
+
+			if (dialog.ShowDialog() != true) return;
+
+			await LoadEpubFileAsync(dialog.FileName, false, 0).ConfigureAwait(true);
+		}
+
+		/// <summary>
+		/// Общая загрузка EPUB: разбор/кэш, запись в историю, показ книги.
+		/// </summary>
+		private async Task LoadEpubFileAsync(string path, bool forceRefresh, int chapterIndex)
+		{
+			if (string.IsNullOrWhiteSpace(path)) return;
+
+			_currentOp?.Cancel();
+			_currentOp = new CancellationTokenSource();
+			var ct = _currentOp.Token;
+
+			IsLoadingBook = true;
+			StatusMessage = "Открываем EPUB…";
+			BookWarning = null;
+
+			try
+			{
+				var book = await _epubProvider
+					.LoadFromFileAsync(path, forceRefresh, ct)
+					.ConfigureAwait(true);
+
+				_epubLibrary.AddOrUpdate(book, path);
+				ApplyBook(book, chapterIndex);
+				RefreshEpubBooks();
+			}
+			catch (OperationCanceledException) { StatusMessage = null; }
+			catch (Exception ex)
+			{
+				ReadingLog.Warn("EPUB: не удалось открыть " + path, ex);
+				StatusMessage = "Ошибка EPUB: " + ex.Message;
+			}
+			finally
+			{
+				if (!ct.IsCancellationRequested) IsLoadingBook = false;
+			}
+		}
+
+		private async Task OpenEpubEntryAsync(EpubLibraryEntry entry)
+		{
+			if (entry == null) return;
+
+			// Уже открыта эта книга — просто возвращаемся к её оглавлению.
+			if (CurrentBook != null &&
+				string.Equals(CurrentBook.ProviderId, EpubProvider.ProviderKey, StringComparison.OrdinalIgnoreCase) &&
+				string.Equals(CurrentBook.Id, entry.Id, StringComparison.OrdinalIgnoreCase))
+			{
+				IsSearchMode = false;
+				return;
+			}
+
+			_currentOp?.Cancel();
+			_currentOp = new CancellationTokenSource();
+			var ct = _currentOp.Token;
+
+			IsLoadingBook = true;
+			StatusMessage = "Открываем «" + entry.Title + "»…";
+			BookWarning = null;
+
+			try
+			{
+				Book book = null;
+
+				try
+				{
+					book = await _epubProvider.GetBookContentAsync(entry.Id, ct).ConfigureAwait(true);
+				}
+				catch (FileNotFoundException)
+				{
+					book = null;
+				}
+
+				if (book == null)
+				{
+					if (string.IsNullOrWhiteSpace(entry.FilePath) || !File.Exists(entry.FilePath))
+						throw new FileNotFoundException(
+							"Файл EPUB больше не найден: " + entry.FilePath);
+
+					book = await _epubProvider
+						.LoadFromFileAsync(entry.FilePath, true, ct)
+						.ConfigureAwait(true);
+				}
+
+				_epubLibrary.Touch(entry.Id);
+				ApplyBook(book, 0);
+				RefreshEpubBooks();
+			}
+			catch (OperationCanceledException) { StatusMessage = null; }
+			catch (Exception ex)
+			{
+				ReadingLog.Warn("EPUB: не удалось открыть «" + entry.Title + "»", ex);
+				StatusMessage = "Ошибка EPUB: " + ex.Message;
+			}
+			finally
+			{
+				if (!ct.IsCancellationRequested) IsLoadingBook = false;
+			}
+		}
+
+		/// <summary>Показывает загруженную книгу, по возможности сохраняя позицию.</summary>
+		private void ApplyBook(Book book, int chapterIndex)
+		{
+			if (book == null) return;
+
+			CurrentBook = book;
+			IsSearchMode = false;
+			BookWarning = book.ChaptersTruncated
+				? "Произведение содержит больше глав, чем разрешено загружать. Показаны первые "
+				  + book.ChapterCount + " глав."
+				: null;
+
+			if (book.ChapterCount > 0)
+			{
+				var target = chapterIndex < 0 ? 0 : chapterIndex;
+				if (target >= book.ChapterCount) target = book.ChapterCount - 1;
+				CurrentChapter = book.Chapters[target];
+			}
+
+			StatusMessage = null;
 		}
 
 		private void GoToChapter(int index)
@@ -347,18 +530,7 @@ namespace StructLab.Reading.ViewModels
 			try
 			{
 				var book = await _service.LoadBookAsync(result.PageId, false, ct).ConfigureAwait(true);
-
-				CurrentBook = book;
-				IsSearchMode = false;
-				BookWarning = book.ChaptersTruncated
-					? "Произведение содержит больше глав, чем разрешено загружать. Показаны первые "
-					  + book.ChapterCount + " глав."
-					: null;
-
-				if (book.ChapterCount > 0)
-					CurrentChapter = book.Chapters[0];
-
-				StatusMessage = null;
+				ApplyBook(book, 0);
 			}
 			catch (OperationCanceledException) { StatusMessage = null; }
 			catch (Exception ex) { StatusMessage = $"Ошибка загрузки: {ex.Message}"; }
@@ -372,6 +544,13 @@ namespace StructLab.Reading.ViewModels
 		{
 			if (CurrentBook == null) return;
 
+			if (string.Equals(CurrentBook.ProviderId, EpubProvider.ProviderKey,
+				StringComparison.OrdinalIgnoreCase))
+			{
+				await ReloadEpubAsync().ConfigureAwait(true);
+				return;
+			}
+
 			var bookId = CurrentBook.Id;
 			var previousIndex = _chapterIndex;
 
@@ -382,24 +561,25 @@ namespace StructLab.Reading.ViewModels
 			try
 			{
 				var fresh = await _service.LoadBookAsync(bookId, true, CancellationToken.None).ConfigureAwait(true);
-
-				CurrentBook = fresh;
-				BookWarning = fresh.ChaptersTruncated
-					? "Произведение содержит больше глав, чем разрешено загружать. Показаны первые "
-					  + fresh.ChapterCount + " глав."
-					: null;
-
-				if (fresh.ChapterCount > 0)
-				{
-					var target = previousIndex < 0 ? 0 : previousIndex;
-					if (target >= fresh.ChapterCount) target = fresh.ChapterCount - 1;
-					CurrentChapter = fresh.Chapters[target];
-				}
-
-				StatusMessage = null;
+				ApplyBook(fresh, previousIndex);
 			}
 			catch (Exception ex) { StatusMessage = $"Ошибка: {ex.Message}"; }
 			finally { IsLoadingBook = false; }
+		}
+
+		/// <summary>Перечитывает EPUB с диска, сохраняя текущую главу.</summary>
+		private async Task ReloadEpubAsync()
+		{
+			var entry = _epubLibrary.Find(CurrentBook.Id);
+			var path = entry != null ? entry.FilePath : null;
+
+			if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
+			{
+				StatusMessage = "Файл EPUB не найден — загрузите его заново.";
+				return;
+			}
+
+			await LoadEpubFileAsync(path, true, _chapterIndex).ConfigureAwait(true);
 		}
 	}
 }

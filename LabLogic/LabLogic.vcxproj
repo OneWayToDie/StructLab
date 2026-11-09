@@ -139,9 +139,12 @@
     <ClCompile Include="BookList.cpp" />
     <ClCompile Include="BookListExports.cpp" />
     <ClCompile Include="BST.cpp" />
+    <ClCompile Include="clinic.cpp" />
     <ClCompile Include="DoublyBookList.cpp" />
     <ClCompile Include="lab02Exports.cpp" />
+    <ClCompile Include="Lab03Exports.cpp" />
     <ClCompile Include="LoanList.cpp" />
+    <ClCompile Include="Patient.cpp" />
     <ClCompile Include="ReaderList.cpp" />
     <ClCompile Include="TaskTree.cpp" />
   </ItemGroup>
@@ -149,7 +152,9 @@
     <ClInclude Include="AVLTree.h" />
     <ClInclude Include="BookList.h" />
     <ClInclude Include="BST.h" />
+    <ClInclude Include="clinic.h" />
     <ClInclude Include="LoanList.h" />
+    <ClInclude Include="Patient.h" />
     <ClInclude Include="ReaderList.h" />
     <ClInclude Include="Task.h" />
     <ClInclude Include="TaskTree.h" />

@@ -19,6 +19,15 @@
     <Filter Include="Lab02\Source">
       <UniqueIdentifier>{15cb1b5a-cd2d-4ba4-97ef-e1d7cafa6d09}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Lab03">
+      <UniqueIdentifier>{e6c07a5f-f767-4f47-a29b-f911a3b77bf3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lab03\Header">
+      <UniqueIdentifier>{1179a388-ad75-49c7-9bf0-ea9d835a7ed7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lab03\Source">
+      <UniqueIdentifier>{c31dbe1b-3954-4ee3-a737-f9d903fd0c22}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BookList.cpp">
@@ -45,8 +54,17 @@
     <ClCompile Include="TaskTree.cpp">
       <Filter>Lab02\Source</Filter>
     </ClCompile>
+    <ClCompile Include="Lab03Exports.cpp">
+      <Filter>Lab03</Filter>
+    </ClCompile>
     <ClCompile Include="lab02Exports.cpp">
-      <Filter>Lab02\Source</Filter>
+      <Filter>Lab02</Filter>
+    </ClCompile>
+    <ClCompile Include="Patient.cpp">
+      <Filter>Lab03\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="clinic.cpp">
+      <Filter>Lab03\Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -70,6 +88,12 @@
     </ClInclude>
     <ClInclude Include="TaskTree.h">
       <Filter>Lab02\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="clinic.h">
+      <Filter>Lab03\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Patient.h">
+      <Filter>Lab03\Header</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

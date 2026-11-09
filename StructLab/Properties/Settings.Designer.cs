@@ -46,5 +46,77 @@ namespace StructLab.Properties {
                 this["EnableFunAnimations"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool EnableNotifications {
+            get {
+                return ((bool)(this["EnableNotifications"]));
+            }
+            set {
+                this["EnableNotifications"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool EnableNotificationSound {
+            get {
+                return ((bool)(this["EnableNotificationSound"]));
+            }
+            set {
+                this["EnableNotificationSound"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("30")]
+        public int NotificationsIntervalMinutes {
+            get {
+                return ((int)(this["NotificationsIntervalMinutes"]));
+            }
+            set {
+                this["NotificationsIntervalMinutes"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool EnableNotifyBefore {
+            get {
+                return ((bool)(this["EnableNotifyBefore"]));
+            }
+            set {
+                this["EnableNotifyBefore"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool EnableNotifyAtTime {
+            get {
+                return ((bool)(this["EnableNotifyAtTime"]));
+            }
+            set {
+                this["EnableNotifyAtTime"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("5")]
+        public int NotifyBeforeMinutes {
+            get {
+                return ((int)(this["NotifyBeforeMinutes"]));
+            }
+            set {
+                this["NotifyBeforeMinutes"] = value;
+            }
+        }
     }
 }

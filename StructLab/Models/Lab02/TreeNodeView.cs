@@ -2,10 +2,10 @@
 
 namespace StructLab.Models.Lab02
 {
-	/// <summary>Узел для отображения на Canvas.</summary>
 	public class TreeNodeView
 	{
 		public int Index { get; set; }
+		public int Key { get; set; }
 		public int Priority { get; set; }
 		public int ParentIndex { get; set; }
 		public int IsLeft { get; set; }
@@ -14,6 +14,9 @@ namespace StructLab.Models.Lab02
 
 		public string PriorityText => Priority.ToString();
 
+		public string IdText => "#" + Key;
+		//Сдвиг фазы «дыхания» узла — чтобы не моргали синхронно.
+		public int PulseDelayMs => (Index * 137) % 1500;
 		public Brush NodeColor
 		{
 			get
