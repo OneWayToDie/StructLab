@@ -1,10 +1,11 @@
 #include "Clinic.h"
 #include <cstring>
 #include <vector>
+#include <string>
+#include <algorithm> // <--- ДОБАВЛЕНО (для std::sort)
 
 using namespace Lab03;
 
-// Структура для маршалинга в C#
 #pragma pack(push, 1)
 struct CPatient {
     int id;
@@ -17,25 +18,22 @@ struct CPatient {
 };
 #pragma pack(pop)
 
-// Хелпер копирования строки
-void CopyStr(char* dest, size_t size, const std::string& src) {
-    strncpy_s(dest, size, src.c_str(), size - 1);
+namespace {
+    void CopyStrLocal(char* dest, size_t size, const std::string& src) {
+        strncpy_s(dest, size, src.c_str(), size - 1);
+    }
+
+    void ConvertToC(const Patient& p, CPatient& cp) {
+        cp.id = p.GetId();
+        cp.type = (int)p.GetType();
+        CopyStrLocal(cp.fullName, sizeof(cp.fullName), p.GetFullName());
+        CopyStrLocal(cp.address, sizeof(cp.address), p.GetAddress());
+        cp.cardNumber = p.GetCardNumber();
+        CopyStrLocal(cp.diagnosis, sizeof(cp.diagnosis), p.GetDiagnosis());
+        cp.severity = (int)p.GetSeverity();
+    }
 }
 
-// Конвертер из C++ класса в C-структуру
-void ConvertToC(const Patient& p, CPatient& cp) {
-    cp.id = p.GetId();
-    cp.type = (int)p.GetType();
-    CopyStr(cp.fullName, sizeof(cp.fullName), p.GetFullName());
-    CopyStr(cp.address, sizeof(cp.address), p.GetAddress());
-    cp.cardNumber = p.GetCardNumber();
-    CopyStr(cp.diagnosis, sizeof(cp.diagnosis), p.GetDiagnosis());
-    cp.severity = (int)p.GetSeverity();
-}
-
-// ==========================================
-// ЭКСПОРТЫ ДЛЯ C#
-// ==========================================
 extern "C" {
     __declspec(dllexport) void* Lab03_Create() {
         return new Clinic();
@@ -63,26 +61,30 @@ extern "C" {
         return static_cast<Clinic*>(ptr)->RemovePatient(id);
     }
 
-    // Универсальный метод для получения списка (сортированного или отфильтрованного)
-    __declspec(dllexport) int Lab03_GetPatients(void* ptr, int mode, const char* filterStr,
+    __declspec(dllexport) int Lab03_GetPatients(void* ptr, const char* filterStr,
         int minCard, int maxCard, CPatient* buffer, int maxSize)
     {
         if (!ptr) return 0;
         Clinic* clinic = static_cast<Clinic*>(ptr);
+
+        // Теперь метод GetAll() существует и работает
+        std::vector<Patient> all = clinic->GetAll();
         std::vector<Patient> result;
 
-        if (mode == 0) {
-            // Все (с сортировкой)
-            result = clinic->GetAllSorted();
+        for (const auto& p : all) {
+            bool matchStr = (filterStr == nullptr || strlen(filterStr) == 0 ||
+                p.GetDiagnosis().find(filterStr) != std::string::npos);
+            bool matchCard = (p.GetCardNumber() >= minCard && p.GetCardNumber() <= maxCard);
+
+            if (matchStr && matchCard) {
+                result.push_back(p);
+            }
         }
-        else if (mode == 1 && filterStr != nullptr) {
-            // Поиск по диагнозу
-            result = clinic->FindByDiagnosis(filterStr);
-        }
-        else if (mode == 2) {
-            // Поиск по диапазону карт
-            result = clinic->FindByCardRange(minCard, maxCard);
-        }
+
+        // std::sort теперь работает благодаря <algorithm>
+        std::sort(result.begin(), result.end(), [](const Patient& a, const Patient& b) {
+            return static_cast<int>(a.GetSeverity()) > static_cast<int>(b.GetSeverity());
+            });
 
         int count = (int)result.size();
         if (count > maxSize) count = maxSize;

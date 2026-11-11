@@ -7,6 +7,7 @@ using StructLab.Models;
 using StructLab.Views;
 using StructLab.Views.Lab01;
 using StructLab.Views.Lab02;
+using StructLab.Views.Lab03;
 
 namespace StructLab.ViewModels
 {
@@ -101,7 +102,13 @@ namespace StructLab.ViewModels
 					Description = "BST и AVL · Менеджер задач",
 					ViewType = typeof(Lab02View)
 				},
-				new LabInfo { Number = "3", Title = "Классы и объекты", Description = "Простейшие классы", ViewType = null },
+				new LabInfo 
+				{ 
+					Number = "3", 
+					Title = "Классы и объекты", 
+					Description = "Простейшие классы", 
+					ViewType = typeof(Lab03View) 
+				},
 				new LabInfo { Number = "4", Title = "Разработка классов", Description = "Перегрузка операторов", ViewType = null },
 				new LabInfo { Number = "5", Title = "Классы для структур", Description = "ООП поверх списков", ViewType = null },
 				new LabInfo { Number = "6", Title = "Шаблоны классов", Description = "Обобщённое программирование", ViewType = null },

@@ -22,7 +22,7 @@ namespace StructLab.Views.Lab01
 
 			vm.IsBookDetailsDialogOpen = false;
 
-			var readerVm = new StructLab.Reading.ViewModels.ReaderViewModel();
+			var readerVm = StructLab.App.GetService<StructLab.Reading.ViewModels.ReaderViewModel>();
 			readerVm.PreloadSearch($"{book.Author} {book.Title}");
 
 			var window = new StructLab.Reading.Views.ReaderWindow

@@ -85,9 +85,9 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Оглавление открытой книги -->
-                <Border DockPanel.Dock="Top" Padding="16,16,16,8"
-                        Visibility="{Binding IsTocMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <!-- Шапка открытой книги: название, прогресс, режимы -->
+                <Border DockPanel.Dock="Top" Padding="16,16,16,10"
+                        Visibility="{Binding IsBookHeaderVisible, Converter={StaticResource BooleanToVisibilityConverter}}">
                     <StackPanel>
                         <TextBlock Text="{Binding CurrentBook.Title}"
                                    Foreground="White" FontSize="17" FontWeight="SemiBold"
@@ -96,13 +96,55 @@
                                    Foreground="#94A3B8" FontSize="11" Margin="0,4,0,0"
                                    TextWrapping="Wrap"
                                    Visibility="{Binding HasBookSubtitle, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                        <TextBlock Text="{Binding ChapterCountText}"
-                                   Foreground="#94A3B8" FontSize="11" Margin="0,2,0,0"/>
+                        <TextBlock Text="{Binding ProgressText}"
+                                   Foreground="#94A3B8" FontSize="11" Margin="0,4,0,0"
+                                   TextWrapping="Wrap"
+                                   Visibility="{Binding HasProgressText, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                        <!-- Режимы левой панели -->
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <RadioButton Content="Оглавление" GroupName="LeftMode" Margin="0,0,14,0"
+                                         Foreground="White"
+                                         IsChecked="{Binding IsTocMode, Mode=OneWay}"
+                                         Command="{Binding ShowTocCommand}"
+                                         Style="{StaticResource MaterialDesignRadioButton}"/>
+                            <RadioButton Content="Закладки" GroupName="LeftMode"
+                                         Foreground="White"
+                                         IsChecked="{Binding IsBookmarksMode, Mode=OneWay}"
+                                         Command="{Binding ShowBookmarksCommand}"
+                                         Style="{StaticResource MaterialDesignRadioButton}"/>
+                        </StackPanel>
+
+                        <!-- Поиск по тексту книги -->
+                        <Grid Margin="0,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBox Grid.Column="0"
+                                     Text="{Binding BookSearchQuery, UpdateSourceTrigger=PropertyChanged}"
+                                     AutomationProperties.Name="BookSearchBox"
+                                     materialDesign:HintAssist.Hint="Поиск по тексту книги"
+                                     Style="{StaticResource MaterialDesignFloatingHintTextBox}"
+                                     Foreground="White"
+                                     KeyDown="BookSearchBox_KeyDown"
+                                     Margin="0,0,6,0"/>
+                            <Button Grid.Column="1"
+                                    Command="{Binding SearchInBookCommand}"
+                                    Style="{StaticResource MaterialDesignIconButton}"
+                                    AutomationProperties.Name="SearchInBook"
+                                    ToolTip="Искать по всем главам"
+                                    Width="32" Height="32"
+                                    VerticalAlignment="Bottom">
+                                <materialDesign:PackIcon Kind="Magnify" Foreground="White"/>
+                            </Button>
+                        </Grid>
+
                         <Button Command="{Binding ShowSearchCommand}"
                                 Style="{StaticResource MaterialDesignOutlinedButton}"
                                 Foreground="White" BorderBrush="White"
                                 HorizontalAlignment="Left"
-                                Margin="0,12,0,0">
+                                Margin="0,10,0,0">
                             <StackPanel Orientation="Horizontal">
                                 <materialDesign:PackIcon Kind="Magnify" VerticalAlignment="Center"/>
                                 <TextBlock Text="К поиску" Margin="6,0,0,0"/>
@@ -261,18 +303,178 @@
                             <DataTemplate>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="22"/>
                                         <ColumnDefinition Width="30"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBlock Grid.Column="0" Text="{Binding Number}"
+
+                                    <!-- Статус главы: прочитано / в процессе / не начато -->
+                                    <Grid Grid.Column="0" Width="16" Height="16"
+                                          VerticalAlignment="Top" Margin="0,3,0,0">
+                                        <materialDesign:PackIcon x:Name="noneIcon" Kind="CircleOutline"
+                                                                  Width="13" Height="13"
+                                                                  Foreground="#64748B"
+                                                                  Visibility="Visible"/>
+                                        <materialDesign:PackIcon x:Name="readIcon" Kind="CheckCircle"
+                                                                  Width="16" Height="16"
+                                                                  Foreground="#4ADE80"
+                                                                  Visibility="Collapsed"/>
+                                        <materialDesign:PackIcon x:Name="nowIcon" Kind="BookOpenPageVariant"
+                                                                  Width="16" Height="16"
+                                                                  Foreground="{StaticResource PrimaryHoverBrush}"
+                                                                  Visibility="Collapsed"/>
+                                    </Grid>
+
+                                    <TextBlock Grid.Column="1" Text="{Binding Number}"
                                                Foreground="#94A3B8" FontSize="12"
                                                VerticalAlignment="Top" Margin="0,2,0,0"/>
-                                    <TextBlock Grid.Column="1" Text="{Binding Title}"
+                                    <TextBlock Grid.Column="2" Text="{Binding Title}"
                                                Foreground="White" TextWrapping="Wrap"/>
                                 </Grid>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsRead}" Value="True">
+                                        <Setter TargetName="noneIcon" Property="Visibility" Value="Collapsed"/>
+                                        <Setter TargetName="readIcon" Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                        <Setter TargetName="noneIcon" Property="Visibility" Value="Collapsed"/>
+                                        <Setter TargetName="readIcon" Property="Visibility" Value="Collapsed"/>
+                                        <Setter TargetName="nowIcon" Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
+
+                    <!-- Закладки -->
+                    <Grid Visibility="{Binding IsBookmarksMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <TextBlock Text="Пока нет закладок. Нажмите на значок закладки в тулбаре."
+                                   Foreground="#64748B" FontSize="12" FontStyle="Italic"
+                                   TextWrapping="Wrap" Margin="18,12,18,0"
+                                   VerticalAlignment="Top"
+                                   Visibility="{Binding HasNoBookmarks, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                        <ListBox ItemsSource="{Binding Bookmarks}"
+                                 Background="Transparent" BorderThickness="0"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 Padding="8,8,8,16"
+                                 Visibility="{Binding HasBookmarks, Converter={StaticResource BooleanToVisibilityConverter}}">
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="Padding" Value="6,6"/>
+                                    <Setter Property="Margin" Value="0,2"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="ListBoxItem">
+                                                <Border x:Name="b" Background="Transparent" CornerRadius="6"
+                                                        Padding="{TemplateBinding Padding}">
+                                                    <ContentPresenter/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="b" Property="Background" Value="{StaticResource SidebarHoverBrush}"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+                                        <Button Grid.Column="0"
+                                                Command="{Binding DataContext.OpenBookmarkCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource MaterialDesignFlatButton}"
+                                                HorizontalContentAlignment="Left"
+                                                Padding="0"
+                                                ToolTip="Перейти к закладке">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Title}" Foreground="White"
+                                                           FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                <TextBlock Text="{Binding Subtitle}" Foreground="#94A3B8"
+                                                           FontSize="11" Margin="0,2,0,0"/>
+                                            </StackPanel>
+                                        </Button>
+                                        <Button Grid.Column="1"
+                                                Command="{Binding DataContext.DeleteBookmarkCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource MaterialDesignIconButton}"
+                                                AutomationProperties.Name="DeleteBookmark"
+                                                ToolTip="Удалить закладку"
+                                                Width="30" Height="30" Margin="4,0,0,0"
+                                                VerticalAlignment="Center">
+                                            <materialDesign:PackIcon Kind="TrashCanOutline"
+                                                                      Width="16" Height="16"
+                                                                      Foreground="#94A3B8"/>
+                                        </Button>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                    </Grid>
+
+                    <!-- Результаты поиска по тексту книги -->
+                    <Grid Visibility="{Binding IsBookSearchMode, Converter={StaticResource BooleanToVisibilityConverter}}">
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Top" Text="{Binding BookSearchSummary}"
+                                       Foreground="#94A3B8" FontSize="11" Margin="16,8,16,4"
+                                       Visibility="{Binding HasBookSearchSummary, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            <TextBlock Text="Ничего не найдено"
+                                       Foreground="#64748B" FontSize="12" FontStyle="Italic"
+                                       HorizontalAlignment="Center" VerticalAlignment="Top"
+                                       Margin="0,24,0,0"
+                                       Visibility="{Binding HasNoBookSearchResults, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                            <ListBox ItemsSource="{Binding BookSearchResults}"
+                                     Background="Transparent" BorderThickness="0"
+                                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                     Padding="8,8,8,16"
+                                     Visibility="{Binding HasBookSearchResults, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="ListBoxItem">
+                                        <Setter Property="Padding" Value="6,6"/>
+                                        <Setter Property="Margin" Value="0,2"/>
+                                        <Setter Property="Template">
+                                            <Setter.Value>
+                                                <ControlTemplate TargetType="ListBoxItem">
+                                                    <Border x:Name="b" Background="Transparent" CornerRadius="6"
+                                                            Padding="{TemplateBinding Padding}">
+                                                        <ContentPresenter/>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="b" Property="Background" Value="{StaticResource SidebarHoverBrush}"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <Button Command="{Binding DataContext.OpenBookSearchHitCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                                CommandParameter="{Binding}"
+                                                Style="{StaticResource MaterialDesignFlatButton}"
+                                                HorizontalContentAlignment="Left"
+                                                Padding="0"
+                                                ToolTip="Перейти к фрагменту">
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding Title}" Foreground="White"
+                                                           FontWeight="SemiBold" TextWrapping="Wrap"/>
+                                                <TextBlock Text="{Binding Snippet}" Foreground="#94A3B8"
+                                                           FontSize="11" TextWrapping="Wrap" Margin="0,2,0,0"/>
+                                            </StackPanel>
+                                        </Button>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </DockPanel>
+                    </Grid>
                 </Grid>
             </DockPanel>
         </Border>
@@ -299,11 +501,13 @@
                     <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                         <Button Command="{Binding PrevChapterCommand}"
                                 Style="{StaticResource MaterialDesignIconButton}"
+                                AutomationProperties.Name="PrevChapter"
                                 ToolTip="Предыдущая глава" Width="36" Height="36">
                             <materialDesign:PackIcon Kind="ChevronLeft" Width="22" Height="22"/>
                         </Button>
                         <Button Command="{Binding NextChapterCommand}"
                                 Style="{StaticResource MaterialDesignIconButton}"
+                                AutomationProperties.Name="NextChapter"
                                 ToolTip="Следующая глава" Width="36" Height="36">
                             <materialDesign:PackIcon Kind="ChevronRight" Width="22" Height="22"/>
                         </Button>
@@ -315,9 +519,17 @@
                                        Foreground="{DynamicResource TextSecondaryBrush}"/>
                         </StackPanel>
 
-                        <Button Command="{Binding ReloadCommand}" Style="{StaticResource MaterialDesignIconButton}"
-                                ToolTip="Перезагрузить с сервера" Width="36" Height="36"
+                        <Button Command="{Binding AddBookmarkCommand}" Style="{StaticResource MaterialDesignIconButton}"
+                                AutomationProperties.Name="AddBookmark"
+                                ToolTip="Добавить/снять закладку" Width="36" Height="36"
                                 Margin="8,0,0,0">
+                            <materialDesign:PackIcon Kind="BookmarkPlusOutline" Width="20" Height="20"/>
+                        </Button>
+
+                        <Button Command="{Binding ReloadCommand}" Style="{StaticResource MaterialDesignIconButton}"
+                                AutomationProperties.Name="ReloadBook"
+                                ToolTip="Перезагрузить с сервера" Width="36" Height="36"
+                                Margin="4,0,0,0">
                             <materialDesign:PackIcon Kind="Refresh" Width="20" Height="20"/>
                         </Button>
                     </StackPanel>

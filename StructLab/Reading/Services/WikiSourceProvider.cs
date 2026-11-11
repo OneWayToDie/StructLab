@@ -6,8 +6,8 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
-using StructLab.Reading.Models;
 using StructLab.Reading.Helpers;
+using StructLab.Reading.Models;
 
 namespace StructLab.Reading.Services
 {

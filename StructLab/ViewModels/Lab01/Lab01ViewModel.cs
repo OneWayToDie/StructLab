@@ -375,7 +375,7 @@ namespace StructLab.ViewModels.Lab01
 			{
 				var window = new ReaderWindow
 				{
-					DataContext = new ReaderViewModel(),
+					DataContext = StructLab.App.GetService<ReaderViewModel>(),
 					Owner = Application.Current != null ? Application.Current.MainWindow : null
 				};
 				window.ShowDialog();

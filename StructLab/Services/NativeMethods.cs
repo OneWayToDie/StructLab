@@ -57,6 +57,18 @@ namespace StructLab.Services
 		public int ParentIndex;
 		public int IsLeft;
 	}
+	[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 1)]
+	public struct CPatient
+	{
+		public int Id;
+		public int Type;
+		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 100)] public string FullName;
+		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 200)] public string Address;
+		public int CardNumber;
+		[MarshalAs(UnmanagedType.ByValTStr, SizeConst = 100)] public string Diagnosis;
+		public int Severity;
+	}
+
 
 	internal static class NativeMethods
 	{
@@ -116,5 +128,12 @@ namespace StructLab.Services
 		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern int Lab02_AddTask(IntPtr ptr, string title, string description, int priority, string dueDate, int sequential);
 		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern bool Lab02_AddTaskWithId(IntPtr ptr, int id, string title, string description, int priority, string dueDate, string dueTime, int status, int isManual);
 		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern int Lab02_AddManualTask(IntPtr ptr, string title, string description, int priority, string dueDate, string dueTime);
+		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern IntPtr Lab03_Create();
+		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern void Lab03_Destroy(IntPtr ptr);
+		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern void Lab03_Clear(IntPtr ptr);
+		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern int Lab03_AddPatient(IntPtr ptr, int type, string name, string address, int cardNumber, string diagnosis, int severity);
+		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern bool Lab03_RemovePatient(IntPtr ptr, int id);
+		[DllImport(DllName, CallingConvention = CallingConvention.Cdecl)] public static extern int Lab03_GetPatients(IntPtr ptr, string filterStr, int minCard, int maxCard, [Out] CPatient[] buffer, int maxSize);
+
 	}
 }

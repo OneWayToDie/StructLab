@@ -20,6 +20,10 @@ namespace StructLab.Reading.Helpers
 
 		public static string EpubLibrary => Path.Combine(Root, "epub-library.json");
 
+		public static string ReadingProgress => Path.Combine(Root, "reading-progress.json");
+
+		public static string Bookmarks => Path.Combine(Root, "bookmarks.json");
+
 		public static string Logs => Path.Combine(Root, "logs");
 
 		public static string WikiCategoriesCache => Path.Combine(Cache, "wiki-categories.json");

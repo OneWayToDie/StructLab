@@ -22,5 +22,8 @@ namespace Lab03 {
         std::vector<Patient> FindByDiagnosis(const std::string& diag) const;
         std::vector<Patient> FindByCardRange(int minCard, int maxCard) const;
         std::vector<Patient> GetAllSorted();
+        std::vector<Patient> GetAll() const {
+            return patients;
+        }
     };
 }

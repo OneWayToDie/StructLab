@@ -6,10 +6,16 @@ namespace Lab03 {
     enum class PatientType : int { Human = 0, Animal = 1 };
     enum class Severity : int { Light = 0, Medium = 1, Critical = 2 };
 
+    enum class Gender : int {
+        Male = 0,
+        Female = 1
+    };
+
     class Patient {
     private:
         int id;
         PatientType type;
+        Gender gender;
         std::string fullName;
         std::string address;
         int cardNumber;

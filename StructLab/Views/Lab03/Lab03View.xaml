@@ -1,0 +1,245 @@
+﻿<UserControl x:Class="StructLab.Views.Lab03.Lab03View"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+             xmlns:vm="clr-namespace:StructLab.ViewModels.Lab03"
+             xmlns:behaviors="clr-namespace:StructLab.Behaviors"
+             Background="{DynamicResource AppBackgroundBrush}"
+             behaviors:ButtonSquash.IsEnabled="True">
+
+    <UserControl.DataContext>
+        <vm:Lab03ViewModel/>
+    </UserControl.DataContext>
+
+    <Grid>
+        <materialDesign:DialogHost Identifier="Lab03Dialogs">
+            <Grid>
+                <!-- ДИАЛОГ ДОБАВЛЕНИЯ (УЛУЧШЕННЫЙ) -->
+                <materialDesign:DialogHost Identifier="Lab03Dialog" IsOpen="{Binding IsAddDialogOpen, Mode=TwoWay}">
+                    <materialDesign:DialogHost.DialogContent>
+                        <materialDesign:Card UniformCornerRadius="16" Width="480">
+                            <StackPanel>
+                                <Border Background="{StaticResource PrimaryBrush}" CornerRadius="16,16,0,0" Padding="24,20">
+                                    <TextBlock Text="Новый пациент" Foreground="White" FontSize="20" FontWeight="SemiBold"/>
+                                </Border>
+                                <StackPanel Margin="24,20,24,8">
+
+                                    <!-- Выбор типа (Человек/Животное) -->
+                                    <ComboBox materialDesign:HintAssist.Hint="Тип пациента" 
+                                              ItemsSource="{Binding PatientTypes}" 
+                                              DisplayMemberPath="Name"
+                                              SelectedValuePath="Value"
+                                              SelectedValue="{Binding NewPatient.Type, Mode=TwoWay}" 
+                                              Margin="0,0,0,16"/>
+
+                                    <!-- Имя / Кличка -->
+                                    <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" 
+                                             materialDesign:HintAssist.Hint="ФИО / Кличка" 
+                                             Text="{Binding NewPatient.FullName}" Margin="0,0,0,16"/>
+
+                                    <!-- Поля для Животного (Вид и Владелец) -->
+                                    <ComboBox materialDesign:HintAssist.Hint="Вид животного" 
+                                              ItemsSource="{Binding SpeciesTypes}" 
+                                              DisplayMemberPath="Name"
+                                              SelectedValuePath="Value"
+                                              SelectedValue="{Binding NewPatient.Species, Mode=TwoWay}" 
+                                              Margin="0,0,0,16"
+                                              Visibility="{Binding NewPatient.IsAnimal, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                                    <!-- Поля для Человека (Адрес) -->
+                                    <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" 
+                                             materialDesign:HintAssist.Hint="Адрес" 
+                                             Text="{Binding NewPatient.Address}" Margin="0,0,0,16"
+                                             Visibility="{Binding NewPatient.IsHuman, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+                                    <!-- Номер карты -->
+                                    <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" 
+                                             materialDesign:HintAssist.Hint="Номер карты" 
+                                             Text="{Binding NewPatient.CardNumber}" Margin="0,0,0,16"/>
+
+                                    <!-- Диагноз -->
+                                    <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" 
+                                             materialDesign:HintAssist.Hint="Диагноз" 
+                                             Text="{Binding NewPatient.Diagnosis}" Margin="0,0,0,16"/>
+
+                                    <!-- Срочность -->
+                                    <ComboBox materialDesign:HintAssist.Hint="Срочность" 
+                                              ItemsSource="{Binding Severities}" 
+                                              DisplayMemberPath="Name"
+                                              SelectedValuePath="Value"
+                                              SelectedValue="{Binding NewPatient.Severity, Mode=TwoWay}" 
+                                              Margin="0,0,0,16"/>
+
+                                    <!-- Выбор аватарки -->
+                                    <TextBlock Text="Аватарка (опционально)" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,0,0,4"/>
+                                    <ComboBox ItemsSource="{Binding AvailableAvatars}" 
+                                              SelectedItem="{Binding NewPatient.AvatarPath, Mode=TwoWay}" 
+                                              Margin="0,0,0,8">
+                                        <ComboBox.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <Image Source="{Binding}" Width="24" Height="24" Margin="0,0,8,0" Stretch="UniformToFill"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ComboBox.ItemTemplate>
+                                    </ComboBox>
+                                </StackPanel>
+
+                                <Border Background="{DynamicResource AppBackgroundBrush}" CornerRadius="0,0,16,16" Padding="24,16">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                        <Button Content="Отмена" Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding CancelAddCommand}" Margin="0,0,8,0"/>
+                                        <Button Content="Добавить" Style="{StaticResource MaterialDesignRaisedButton}" Command="{Binding ConfirmAddCommand}" IsDefault="True"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+                        </materialDesign:Card>
+                    </materialDesign:DialogHost.DialogContent>
+
+                    <!-- ОСНОВНОЙ КОНТЕНТ -->
+                    <Grid Margin="32,28,32,24">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- ШАПКА -->
+                        <Grid Grid.Row="0" Margin="0,0,0,20">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                <Border Background="{StaticResource PrimaryBrush}" CornerRadius="8" Width="56" Height="56">
+                                    <TextBlock Text="3" FontSize="28" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Margin="16,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="Клиника" FontSize="28" FontWeight="Bold" Foreground="{DynamicResource TextPrimaryBrush}"/>
+                                    <TextBlock Text="Люди и животные · Триаж" FontSize="14" Foreground="{DynamicResource TextSecondaryBrush}" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- Статистика -->
+                            <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+                                <Border Background="{DynamicResource SurfaceBrush}" CornerRadius="10" Padding="14,8" BorderBrush="{StaticResource PrimaryBrush}" BorderThickness="1" Margin="0,0,8,0">
+                                    <TextBlock>
+                                         <Run Text="Всего: "/>
+                                         <!-- Добавлено Mode=OneWay -->
+                                         <Run Text="{Binding TotalCount, Mode=OneWay}" FontWeight="Bold"/>
+                                    </TextBlock>
+                                </Border>
+                                <Border Background="#FEE2E2" CornerRadius="10" Padding="14,8" BorderBrush="{StaticResource ErrorBrush}" BorderThickness="1">
+                                    <TextBlock Foreground="{StaticResource ErrorBrush}">
+                                        <Run Text="Критических: "/>
+                                        <!-- Добавлено Mode=OneWay -->
+                                        <Run Text="{Binding CriticalCount, Mode=OneWay}" FontWeight="Bold"/>
+                                    </TextBlock>
+                                </Border>
+                            </StackPanel>
+                        </Grid>
+
+                        <!-- ПАНЕЛЬ КНОПОК И ФИЛЬТРОВ -->
+                        <materialDesign:Card Grid.Row="1" Padding="16,12" UniformCornerRadius="12" Margin="0,0,0,16">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                    <Button Style="{StaticResource MaterialDesignRaisedButton}" Command="{Binding OpenAddDialogCommand}" Margin="0,0,8,0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="Plus" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Новый пациент" Margin="6,0,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding AddRandomCommand}" Margin="0,0,8,0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="DiceMultiple" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Случайный" Margin="6,0,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                    <Button Style="{StaticResource MaterialDesignOutlinedButton}" Command="{Binding DeleteCommand}">
+                                        <StackPanel Orientation="Horizontal">
+                                            <materialDesign:PackIcon Kind="Delete" VerticalAlignment="Center"/>
+                                            <TextBlock Text="Вылечить (удалить)" Margin="6,0,0,0"/>
+                                        </StackPanel>
+                                    </Button>
+                                </StackPanel>
+
+                                <!-- Фильтры -->
+                                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBox Style="{StaticResource MaterialDesignFloatingHintTextBox}" materialDesign:HintAssist.Hint="Поиск по диагнозу" Width="180" Text="{Binding SearchDiagnosis, UpdateSourceTrigger=PropertyChanged}" Margin="0,0,16,0"/>
+
+                                    <TextBlock Text="Карта:" VerticalAlignment="Center" Margin="0,0,8,0" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    <TextBox Width="60" Text="{Binding MinCard, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"/>
+                                    <TextBlock Text=" - " VerticalAlignment="Center" Margin="4,0" Foreground="{DynamicResource TextSecondaryBrush}"/>
+                                    <TextBox Width="60" Text="{Binding MaxCard, UpdateSourceTrigger=PropertyChanged}" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Grid>
+                        </materialDesign:Card>
+
+                        <!-- ТАБЛИЦА -->
+                        <!-- ТАБЛИЦА -->
+                        <materialDesign:Card Grid.Row="2" Padding="0" UniformCornerRadius="12">
+                            <DataGrid ItemsSource="{Binding FilteredPatients}"
+                                      SelectedItem="{Binding SelectedPatient, Mode=TwoWay}"
+                                      AutoGenerateColumns="False"
+                                      CanUserAddRows="False"
+                                      IsReadOnly="True"
+                                      HeadersVisibility="Column"
+                                      GridLinesVisibility="Horizontal"
+                                      Background="{DynamicResource SurfaceBrush}"
+                                      BorderThickness="0"
+                                      RowHeight="70"
+                                      ColumnHeaderHeight="45"
+                                      MouseDoubleClick="DataGrid_MouseDoubleClick">
+                                <DataGrid.Columns>
+
+                                    <!-- Колонка пациента с увеличенной аватаркой -->
+                                    <DataGridTemplateColumn Header="Пациент" Width="2*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                                    <!-- Увеличили до 56x56 и сделали круглой -->
+                                                    <Border Width="56" Height="56" CornerRadius="28" ClipToBounds="True" Margin="0,0,15,0" Background="#EEF2FF" BorderBrush="{DynamicResource TextSecondaryBrush}" BorderThickness="1">
+                                                        <Grid>
+                                                            <materialDesign:PackIcon Kind="Paw" Width="28" Height="28" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource PrimaryBrush}"/>
+                                                            <Image Source="{Binding AvatarPath}" Stretch="UniformToFill"/>
+                                                        </Grid>
+                                                    </Border>
+                                                    <TextBlock Text="{Binding FullName}" VerticalAlignment="Center" FontSize="15" FontWeight="SemiBold"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+
+                                    <!-- Карта (фиксированная ширина) -->
+                                    <DataGridTextColumn Header="Карта" Binding="{Binding CardNumber}" Width="100"/>
+
+                                    <!-- Диагноз (растягивается) -->
+                                    <DataGridTextColumn Header="Диагноз" Binding="{Binding Diagnosis}" Width="2*"/>
+
+                                    <!-- Адрес (растягивается) -->
+                                    <DataGridTextColumn Header="Адрес/Владелец" Binding="{Binding Address}" Width="2*"/>
+
+                                    <!-- Срочность (по размеру контента) -->
+                                    <DataGridTemplateColumn Header="Срочность" Width="Auto">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Border Background="{Binding SeverityColor}" CornerRadius="6" Padding="12,6" Margin="10,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding SeverityLabel}" Foreground="White" FontWeight="Bold" FontSize="12"/>
+                                                </Border>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </materialDesign:Card>
+                    </Grid>
+                </materialDesign:DialogHost>
+            </Grid>
+        </materialDesign:DialogHost>
+    </Grid>
+</UserControl>
